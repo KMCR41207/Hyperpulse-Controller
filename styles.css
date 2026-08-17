@@ -972,3 +972,24 @@ textarea.form-input { resize: vertical; }
 .rpm-led.green.on  { box-shadow:0 0 8px #00ff88; }
 .rpm-led.yellow.on { box-shadow:0 0 8px var(--warning); }
 .rpm-led.red.on    { box-shadow:0 0 8px var(--danger); }
+
+/* MOBILE BOTTOM NAV */
+.mobile-bottom-nav {
+  display:none; position:fixed; bottom:0; left:0; right:0; z-index:500;
+  background:rgba(17,17,17,0.97); border-top:1px solid var(--border);
+  backdrop-filter:blur(12px);
+  padding:6px 0 env(safe-area-inset-bottom,6px);
+  grid-template-columns:repeat(5,1fr);
+}
+.mbn-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; border:none; cursor:pointer;
+  color:var(--text-d); font-size:0.62rem; font-weight:600; padding:6px 0;
+  transition:color 0.15s;
+}
+.mbn-btn span:first-child { font-size:1.2rem; }
+.mbn-btn.active { color:var(--accent); }
+@media (max-width:768px) {
+  .mobile-bottom-nav { display:grid; }
+  #page-dashboard.active .dash-main { padding-bottom:70px; }
+}

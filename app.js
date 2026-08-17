@@ -1067,3 +1067,17 @@ handlePedal = function(type, val) {
   _origHandlePedal(type, val);
   if (type === 'throttle') updateRPMBar(parseInt(val));
 };
+
+/* ---- MOBILE BOTTOM NAV ---- */
+function mbnActive(section) {
+  document.querySelectorAll('.mbn-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mbn-' + section);
+  if (btn) btn.classList.add('active');
+}
+// Show/hide bottom nav based on active page
+const _origNavigate = navigate;
+navigate = function(pageId) {
+  _origNavigate(pageId);
+  const mbn = document.getElementById('mobileBottomNav');
+  if (mbn) mbn.style.display = pageId === 'dashboard' ? '' : 'none';
+};

@@ -1107,6 +1107,15 @@
   <button class="btn btn-accent btn-full" onclick="uploadCommunityProfile()">Share Profile →</button>
 </div>
 
+<!-- Mobile Bottom Nav (dashboard only) -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <button class="mbn-btn active" id="mbn-dashboard" onclick="switchDashSection('dashboard');mbnActive('dashboard')"><span>⊞</span><span>Home</span></button>
+  <button class="mbn-btn" id="mbn-gamepad" onclick="switchDashSection('gamepad');mbnActive('gamepad')"><span>🎮</span><span>Gamepad</span></button>
+  <button class="mbn-btn" id="mbn-wheel" onclick="switchDashSection('wheel');mbnActive('wheel')"><span>🏎️</span><span>Racing</span></button>
+  <button class="mbn-btn" id="mbn-community" onclick="switchDashSection('community');mbnActive('community')"><span>🌐</span><span>Community</span></button>
+  <button class="mbn-btn" id="mbn-settings" onclick="switchDashSection('settings');mbnActive('settings')"><span>⚙️</span><span>Settings</span></button>
+</nav>
+
 <!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
