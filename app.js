@@ -1,601 +1,993 @@
 /* ==========================================================================
-   HYPERPULSE // INDUSTRIAL CONTROLLER ENGINE (app.js)
+   HYPERPULSE — CONTROLLER ENGINE (app.js)
+   ==========================================================================
+   Architecture:
+     HP.state       — all application state
+     HP.nav         — page/section navigation
+     HP.input       — controller input engine (touch, gyro, mouse, keyboard)
+     HP.broadcast   — BroadcastChannel real-time sync
+     HP.render      — canvas renderers (wheel, latency graph)
+     HP.ui          — UI utilities (toast, modal, etc.)
    ========================================================================== */
 
-// --- GLOBAL STATE ---
-const state = {
-  sessionId: 'HYPER-' + Math.floor(1000 + Math.random() * 9000),
-  transportMode: 'usb', // 'usb' | 'wifi' | 'local'
-  isConnected: false,
-  latencyMs: 0.4,
-  pollingHz: 1000,
-  audioMuted: false,
+const HP = {
 
-  // Controller Inputs State
-  inputs: {
-    buttons: {
-      A: false, B: false, X: false, Y: false,
-      L1: false, R1: false, L2: false, R2: false,
-      DPAD_UP: false, DPAD_DOWN: false, DPAD_LEFT: false, DPAD_RIGHT: false,
-      START: false, SELECT: false
+  /* ---- STATE ---- */
+  state: {
+    page: 'landing',
+    dashSection: 'dashboard',
+    user: null,
+    device: { connected: false, name: 'My Phone', battery: 74, latency: null, transport: null, signal: null },
+    mode: 'gamepad',
+    gyroActive: false,
+    gyroZero: { pitch: 0, roll: 0, yaw: 0 },
+    inputs: {
+      buttons: {},
+      sticks: { LX: 0, LY: 0, RX: 0, RY: 0 },
+      wheel: { angle: 0, gear: 0, throttle: 0, brake: 0, speed: 0, handbrake: false },
+      gyro: { pitch: 0, roll: 0, yaw: 0, ax: 0, ay: 0, az: 0, sens: 50 },
+      mouse: { x: 0, y: 0, left: false, middle: false, right: false, dpi: 5 },
+      keys: {}
     },
-    sticks: { LX: 0, LY: 0, RX: 0, RY: 0 },
-    triggers: { L2: 0, R2: 0 },
-    wheel: {
-      angle: 0, // -450 to +450 deg
-      throttle: 0,
-      brake: 0,
-      clutch: 0,
-      gear: 4,
-      speed: 184,
-      handbrake: false
+    profiles: [],
+    roomCode: '',
+    latencyHistory: [],
+    settings: { wheelSens: 72, wheelDz: 4, accent: '#6c63ff' }
+  },
+
+  /* ---- INIT ---- */
+  init() {
+    this.state.roomCode = 'HYPER-' + (1000 + Math.floor(Math.random() * 9000));
+    this.nav.init();
+    this.input.initSticks();
+    this.input.initTrackpad();
+    this.input.initSensors();
+    this.input.initKeyboard();
+    this.render.initWheelCanvas();
+    this.render.startLatencyGraph();
+    this.render.startWheelLoop();
+    this.ui.initQrGrids();
+    this.ui.buildKeyboard();
+    this.ui.buildNumpad();
+    this.ui.buildHelpItems();
+    this.ui.buildCommunityGrid();
+    this.ui.buildProfiles();
+    this.broadcast.init();
+    this.ui.updateRoomCode();
+    this.phoneModeLoop();
+    setTimeout(() => this.ui.updateSidebarDevice(), 200);
+  },
+
+  /* ---- NAVIGATION ---- */
+  nav: {
+    init() {
+      const path = window.location.hash.replace('#','');
+      if (path && ['landing','auth','dashboard'].includes(path)) HP.nav.go(path);
     },
-    gyro: {
-      pitch: 0, roll: 0, yaw: 0,
-      zeroPitch: 0, zeroRoll: 0, zeroYaw: 0,
-      sens: 5, deadzone: 2, smooth: 40
-    },
-    mouse: { x: 0, y: 0, left: false, middle: false, right: false, dpi: 5 }
-  }
-};
-
-// --- WEB AUDIO SYNTHESIZER ---
-let audioCtx = null;
-
-function getAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
-  return audioCtx;
-}
-
-function playSound(type) {
-  if (state.audioMuted) return;
-  try {
-    const ctx = getAudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
-    if (type === 'click') {
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(400, now);
-      osc.frequency.exponentialRampToValueAtTime(100, now + 0.04);
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-      osc.start(now);
-      osc.stop(now + 0.04);
-    } else if (type === 'gear') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(120, now);
-      osc.frequency.exponentialRampToValueAtTime(30, now + 0.1);
-      gain.gain.setValueAtTime(0.4, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } else if (type === 'chime') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, now);
-      osc.frequency.setValueAtTime(880, now + 0.08);
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-      osc.start(now);
-      osc.stop(now + 0.25);
+    go(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const page = document.getElementById('page-' + pageId);
+      if (page) page.classList.add('active');
+      HP.state.page = pageId;
+      window.location.hash = pageId;
+      window.scrollTo(0,0);
+      if (pageId === 'landing') document.getElementById('siteNav').style.display = '';
+      else document.getElementById('siteNav').style.display = 'none';
     }
-  } catch(e) {}
-}
+  },
 
-function triggerHaptic(duration = 40) {
-  if (navigator.vibrate) {
-    try { navigator.vibrate(duration); } catch(e) {}
-  }
-}
-
-// --- BROADCASTCHANNEL LOCAL SYNC TRANSPORT ---
-const localChannel = new BroadcastChannel('hyperpulse_channel');
-
-localChannel.onmessage = (event) => {
-  if (event.data && event.data.type === 'INPUT_UPDATE') {
-    state.inputs = event.data.inputs;
-    updateHostTelemetryUI();
-  }
-};
-
-function broadcastInputs() {
-  localChannel.postMessage({
-    type: 'INPUT_UPDATE',
-    sessionId: state.sessionId,
-    inputs: state.inputs,
-    timestamp: performance.now()
-  });
-}
-
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-  initUI();
-  initTouchSticks();
-  initWheelCanvas();
-  initHorizonCanvas();
-  initSensors();
-  startTelemetryUpdateLoop();
-});
-
-function initUI() {
-  document.getElementById('dashSessionCode').innerText = state.sessionId;
-  document.getElementById('dashBigCode').innerText = state.sessionId.replace('HYPER-', '');
-  document.getElementById('modalRoomCode').innerText = state.sessionId;
-
-  generateQRCode();
-}
-
-function generateQRCode() {
-  const qrContainer = document.getElementById('dashboardQrCode');
-  const modalQr = document.getElementById('modalQrDisplay');
-  if (qrContainer) qrContainer.innerHTML = '';
-  if (modalQr) modalQr.innerHTML = '';
-
-  const pairingUrl = window.location.origin + window.location.pathname + '?join=' + state.sessionId;
-  if (typeof QRCode !== 'undefined') {
-    if (qrContainer) new QRCode(qrContainer, { text: pairingUrl, width: 140, height: 140 });
-    if (modalQr) new QRCode(modalQr, { text: pairingUrl, width: 160, height: 160 });
-  }
-}
-
-// --- NAVIGATION & MODALS ---
-function showSection(sectionId) {
-  playSound('click');
-  document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-
-  if (sectionId === 'landing') {
-    document.getElementById('landingSection').classList.add('active');
-  } else if (sectionId === 'modes') {
-    document.getElementById('modesSection').classList.add('active');
-  } else if (sectionId === 'builder') {
-    document.getElementById('builderSection').classList.add('active');
-  } else if (sectionId === 'host') {
-    document.getElementById('hostDashboardSection').classList.add('active');
-  }
-}
-
-function selectTransportMode(mode) {
-  playSound('click');
-  state.transportMode = mode;
-  document.querySelectorAll('.transport-option').forEach(el => el.classList.remove('active'));
-
-  if (mode === 'usb') {
-    document.getElementById('modeUsbOption').classList.add('active');
-    state.latencyMs = 0.4;
-    showToast('⚡ USB Type-C Wired Mode Selected (<0.5ms)');
-  } else if (mode === 'wifi') {
-    document.getElementById('modeWifiOption').classList.add('active');
-    state.latencyMs = 1.8;
-    showToast('📶 Wi-Fi P2P Link Selected');
-  } else if (mode === 'local') {
-    document.getElementById('modeLocalOption').classList.add('active');
-    state.latencyMs = 0.2;
-    showToast('🔗 Local Dual-Window Sync Selected');
-  }
-
-  document.getElementById('dashTransportType').innerText =
-    mode === 'usb' ? '⚡ USB CABLE' : mode === 'wifi' ? '📶 WI-FI P2P' : '🔗 LOCAL SYNC';
-  document.getElementById('dashLatencyVal').innerText = state.latencyMs + ' MS';
-}
-
-function startHostSession() {
-  playSound('chime');
-  state.isConnected = true;
-  showSection('host');
-  showToast('⚡ HOST SESSION ACTIVATED: ' + state.sessionId);
-}
-
-function openSessionModal() {
-  playSound('click');
-  document.getElementById('sessionModal').classList.add('active');
-}
-
-function closeSessionModal() {
-  playSound('click');
-  document.getElementById('sessionModal').classList.remove('active');
-}
-
-function switchModalTab(tabKey) {
-  playSound('click');
-  document.querySelectorAll('.modal-tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-
-  if (tabKey === 'usb') {
-    document.getElementById('tabModUsb').classList.add('active');
-    document.getElementById('modalUsbContent').classList.add('active');
-  } else if (tabKey === 'wifi') {
-    document.getElementById('tabModWifi').classList.add('active');
-    document.getElementById('modalWifiContent').classList.add('active');
-  }
-}
-
-function connectUsbDeviceHost() {
-  playSound('chime');
-  if (navigator.usb) {
-    navigator.usb.requestDevice({ filters: [] })
-      .then(device => {
-        showToast('⚡ USB Device Connected: ' + device.productName);
-        closeSessionModal();
-        startHostSession();
-      })
-      .catch(() => {
-        showToast('⚡ USB Cable tethering active on 192.168.42.x');
-        closeSessionModal();
-        startHostSession();
+  /* ---- CONTROLLER INPUT ENGINE ---- */
+  input: {
+    /* JOYSTICKS */
+    initSticks() {
+      HP.input.setupStick('leftStickBase','leftStickThumb',(x,y)=>{
+        HP.state.inputs.sticks.LX = x; HP.state.inputs.sticks.LY = y;
+        document.getElementById('dbgLS').textContent = `X: ${x.toFixed(2)}  Y: ${y.toFixed(2)}`;
+        HP.broadcast.send();
       });
-  } else {
-    showToast('⚡ USB Direct Mode Active (<0.5ms)');
-    closeSessionModal();
-    startHostSession();
-  }
-}
+      HP.input.setupStick('rightStickBase','rightStickThumb',(x,y)=>{
+        HP.state.inputs.sticks.RX = x; HP.state.inputs.sticks.RY = y;
+        document.getElementById('dbgRS').textContent = `X: ${x.toFixed(2)}  Y: ${y.toFixed(2)}`;
+        HP.broadcast.send();
+      });
+    },
+    setupStick(baseId, thumbId, cb) {
+      const base = document.getElementById(baseId);
+      const thumb = document.getElementById(thumbId);
+      if (!base || !thumb) return;
+      const r = 29; let active = false, tid = null;
+      function move(cx, cy) {
+        const rect = base.getBoundingClientRect();
+        let dx = cx - (rect.left + rect.width/2);
+        let dy = cy - (rect.top + rect.height/2);
+        const dist = Math.hypot(dx, dy);
+        if (dist > r*2) { dx = dx/dist*r*2; dy = dy/dist*r*2; }
+        thumb.style.transform = `translate(${dx}px,${dy}px)`;
+        thumb.classList.add('active');
+        cb(parseFloat((dx/(r*2)).toFixed(3)), parseFloat((dy/(r*2)).toFixed(3)));
+      }
+      function end() { active=false; tid=null; thumb.style.transform=''; thumb.classList.remove('active'); cb(0,0); }
+      base.addEventListener('mousedown', e=>{active=true; move(e.clientX,e.clientY);});
+      window.addEventListener('mousemove', e=>{if(active) move(e.clientX,e.clientY);});
+      window.addEventListener('mouseup', ()=>{if(active) end();});
+      base.addEventListener('touchstart', e=>{e.preventDefault(); active=true; tid=e.touches[0].identifier; move(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+      base.addEventListener('touchmove', e=>{e.preventDefault(); for(const t of e.touches){if(t.identifier===tid) move(t.clientX,t.clientY);}},{passive:false});
+      base.addEventListener('touchend', ()=>end());
+    },
 
-function toggleMobileSimulator() {
-  playSound('click');
-  const drawer = document.getElementById('mobileSimulatorDrawer');
-  drawer.classList.toggle('active');
-  if (drawer.classList.contains('active')) {
-    document.getElementById('simIframe').src = window.location.href;
-  }
-}
+    /* TRACKPAD / MOUSE */
+    initTrackpad() {
+      const surface = document.getElementById('trackpadSurface');
+      const cursor = document.getElementById('trackpadCursor');
+      const hint = document.getElementById('trackpadHint');
+      if (!surface) return;
+      let lx=0, ly=0, active=false;
+      function move(cx,cy) {
+        const rect = surface.getBoundingClientRect();
+        const x = ((cx - rect.left)/rect.width)*100;
+        const y = ((cy - rect.top)/rect.height)*100;
+        const dx = cx - (lx||cx); const dy = cy - (ly||cy);
+        lx=cx; ly=cy;
+        const dpi = HP.state.inputs.mouse.dpi;
+        HP.state.inputs.mouse.x = Math.round(x*10)/10;
+        HP.state.inputs.mouse.y = Math.round(y*10)/10;
+        cursor.style.left = x+'%';
+        cursor.style.top = y+'%';
+        cursor.style.opacity = '1';
+        hint.style.opacity = '0';
+        document.getElementById('mousePosX').textContent = Math.round(dx*dpi);
+        document.getElementById('mousePosY').textContent = Math.round(dy*dpi);
+        HP.broadcast.send();
+      }
+      function start(cx,cy) { active=true; lx=cx; ly=cy; }
+      function end() { active=false; }
+      surface.addEventListener('mousedown', e=>{start(e.clientX,e.clientY); move(e.clientX,e.clientY);});
+      surface.addEventListener('mousemove', e=>{if(active) move(e.clientX,e.clientY);});
+      window.addEventListener('mouseup', ()=>end());
+      surface.addEventListener('touchstart', e=>{e.preventDefault(); start(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+      surface.addEventListener('touchmove', e=>{e.preventDefault(); if(active) move(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+      surface.addEventListener('touchend', ()=>end());
+    },
 
-function toggleAudio() {
-  state.audioMuted = !state.audioMuted;
-  document.getElementById('audioToggleBtn').innerText = state.audioMuted ? '🔇' : '🔊';
-  showToast(state.audioMuted ? 'Audio Muted' : 'Audio Active');
-}
+    /* GYROSCOPE */
+    initSensors() {
+      if (!window.DeviceOrientationEvent) return;
+      window.addEventListener('deviceorientation', e => {
+        if (e.beta === null) return;
+        const g = HP.state.inputs.gyro;
+        const z = HP.state.gyroZero;
+        g.pitch = parseFloat((e.beta  - z.pitch).toFixed(1));
+        g.roll  = parseFloat((e.gamma - z.roll).toFixed(1));
+        g.yaw   = parseFloat(((e.alpha||0) - z.yaw).toFixed(1));
+        HP.state.gyroActive = true;
+        HP.ui.updateGyroUI();
+        if (HP.state.mode === 'wheel' && document.getElementById('gyroToggle')?.classList.contains('on')) {
+          HP.state.inputs.wheel.angle = g.roll * (HP.state.settings.wheelSens / 100) * 5;
+          HP.render.updateWheelAngle();
+        }
+        HP.broadcast.send();
+      });
+    },
 
-function showToast(msg) {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerText = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// --- CONTROLLER MODES & SWITCHING ---
-function openModeDirect(modeKey) {
-  showSection('modes');
-  switchControllerTab(modeKey);
-}
-
-function switchControllerTab(tabKey) {
-  playSound('click');
-  document.querySelectorAll('.mode-nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.controller-tab-content').forEach(c => c.classList.remove('active'));
-
-  if (tabKey === 'gamepad') {
-    document.getElementById('tabGamepadBtn').classList.add('active');
-    document.getElementById('tabGamepad').classList.add('active');
-  } else if (tabKey === 'wheel') {
-    document.getElementById('tabWheelBtn').classList.add('active');
-    document.getElementById('tabWheel').classList.add('active');
-  } else if (tabKey === 'gyro') {
-    document.getElementById('tabGyroBtn').classList.add('active');
-    document.getElementById('tabGyro').classList.add('active');
-  } else if (tabKey === 'mouse') {
-    document.getElementById('tabMouseBtn').classList.add('active');
-    document.getElementById('tabMouse').classList.add('active');
-  }
-}
-
-// --- GAMEPAD HARDWARE HANDLERS ---
-function handleButtonPress(btnName, isPressed) {
-  playSound('click');
-  triggerHaptic(30);
-  state.inputs.buttons[btnName] = isPressed;
-  const elem = document.getElementById('btn' + btnName);
-  if (elem) elem.classList.toggle('active', isPressed);
-  broadcastInputs();
-}
-
-function initTouchSticks() {
-  setupStick('leftStickBase', 'leftStickThumb', (x, y) => {
-    state.inputs.sticks.LX = x;
-    state.inputs.sticks.LY = y;
-    broadcastInputs();
-  });
-
-  setupStick('rightStickBase', 'rightStickThumb', (x, y) => {
-    state.inputs.sticks.RX = x;
-    state.inputs.sticks.RY = y;
-    broadcastInputs();
-  });
-}
-
-function setupStick(baseId, thumbId, callback) {
-  const base = document.getElementById(baseId);
-  const thumb = document.getElementById(thumbId);
-  if (!base || !thumb) return;
-
-  let active = false;
-  let maxRadius = 40;
-
-  function onMove(clientX, clientY) {
-    const rect = base.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    let deltaX = clientX - centerX;
-    let deltaY = clientY - centerY;
-    let distance = Math.hypot(deltaX, deltaY);
-
-    if (distance > maxRadius) {
-      deltaX = (deltaX / distance) * maxRadius;
-      deltaY = (deltaY / distance) * maxRadius;
+    /* KEYBOARD */
+    initKeyboard() {
+      document.addEventListener('keydown', e => {
+        const key = e.key.toUpperCase();
+        HP.state.inputs.keys[key] = true;
+        const el = document.querySelector(`[data-key="${key}"]`);
+        if (el) el.classList.add('pressed');
+        document.getElementById('lastKeyPressed').textContent = e.key;
+        HP.broadcast.send();
+      });
+      document.addEventListener('keyup', e => {
+        const key = e.key.toUpperCase();
+        HP.state.inputs.keys[key] = false;
+        const el = document.querySelector(`[data-key="${key}"]`);
+        if (el) el.classList.remove('pressed');
+        HP.broadcast.send();
+      });
     }
+  },
 
-    thumb.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-    callback(parseFloat((deltaX / maxRadius).toFixed(2)), parseFloat((deltaY / maxRadius).toFixed(2)));
-  }
+  /* ---- BROADCAST CHANNEL ---- */
+  broadcast: {
+    ch: null,
+    init() {
+      try { this.ch = new BroadcastChannel('hyperpulse_v2'); this.ch.onmessage = e => HP.broadcast.receive(e.data); }
+      catch(e) {}
+    },
+    send() {
+      if (!this.ch) return;
+      try { this.ch.postMessage({ type:'INPUT', inputs: HP.state.inputs, ts: performance.now() }); }
+      catch(e) {}
+    },
+    receive(data) {
+      if (data.type === 'INPUT') HP.state.inputs = data.inputs;
+    }
+  },
 
-  function onEnd() {
-    active = false;
-    thumb.style.transform = `translate(0px, 0px)`;
-    callback(0, 0);
-  }
+  /* ---- CANVAS RENDERERS ---- */
+  render: {
+    wheelCtx: null,
+    latencyCtx: null,
+    wheelAngle: 0,
+    draggingWheel: false,
+    wheelDragStart: 0,
 
-  base.addEventListener('mousedown', (e) => { active = true; onMove(e.clientX, e.clientY); });
-  window.addEventListener('mousemove', (e) => { if (active) onMove(e.clientX, e.clientY); });
-  window.addEventListener('mouseup', () => { if (active) onEnd(); });
-
-  base.addEventListener('touchstart', (e) => { active = true; onMove(e.touches[0].clientX, e.touches[0].clientY); });
-  window.addEventListener('touchmove', (e) => { if (active) onMove(e.touches[0].clientX, e.touches[0].clientY); });
-  window.addEventListener('touchend', () => { if (active) onEnd(); });
-}
-
-// --- LOGITECH G29 RACING WHEEL RENDERING ---
-let wheelCanvasCtx = null;
-let heroWheelCtx = null;
-let isDraggingWheel = false;
-
-function initWheelCanvas() {
-  const canvas = document.getElementById('wheelCanvas');
-  const heroCanvas = document.getElementById('heroWheelCanvas');
-  if (canvas) wheelCanvasCtx = canvas.getContext('2d');
-  if (heroCanvas) heroWheelCtx = heroCanvas.getContext('2d');
-
-  renderWheelLoop();
-
-  if (canvas) {
-    let startX = 0;
-    canvas.addEventListener('mousedown', (e) => { isDraggingWheel = true; startX = e.clientX; });
-    window.addEventListener('mousemove', (e) => {
-      if (isDraggingWheel) {
-        let delta = (e.clientX - startX) * 1.5;
-        state.inputs.wheel.angle = Math.max(-450, Math.min(450, state.inputs.wheel.angle + delta));
+    initWheelCanvas() {
+      const c = document.getElementById('wheelCanvas');
+      if (!c) return;
+      this.wheelCtx = c.getContext('2d');
+      let startX = 0;
+      c.addEventListener('mousedown', e=>{this.draggingWheel=true; startX=e.clientX;});
+      window.addEventListener('mousemove', e=>{
+        if (!this.draggingWheel) return;
+        const delta = (e.clientX - startX) * 1.2;
+        HP.state.inputs.wheel.angle = Math.max(-450,Math.min(450, HP.state.inputs.wheel.angle+delta));
         startX = e.clientX;
-        updateWheelTelemetry();
-      }
-    });
-    window.addEventListener('mouseup', () => { isDraggingWheel = false; });
+        this.updateWheelAngle();
+      });
+      window.addEventListener('mouseup', ()=>{this.draggingWheel=false;});
+      c.addEventListener('touchstart', e=>{this.draggingWheel=true; startX=e.touches[0].clientX;},{passive:true});
+      c.addEventListener('touchmove', e=>{
+        const delta = (e.touches[0].clientX - startX) * 1.2;
+        HP.state.inputs.wheel.angle = Math.max(-450,Math.min(450, HP.state.inputs.wheel.angle+delta));
+        startX = e.touches[0].clientX;
+        this.updateWheelAngle();
+      },{passive:true});
+      c.addEventListener('touchend', ()=>{this.draggingWheel=false;});
+    },
+
+    updateWheelAngle() {
+      document.getElementById('wheelAngleTxt').textContent = Math.round(HP.state.inputs.wheel.angle) + '°';
+      HP.broadcast.send();
+    },
+
+    startWheelLoop() {
+      const draw = () => {
+        if (!this.draggingWheel && HP.state.inputs.wheel.angle !== 0) {
+          HP.state.inputs.wheel.angle *= 0.92;
+          if (Math.abs(HP.state.inputs.wheel.angle) < 0.5) HP.state.inputs.wheel.angle = 0;
+          this.updateWheelAngle();
+        }
+        this.drawWheel(this.wheelCtx, 160, 160, 130, HP.state.inputs.wheel.angle);
+        requestAnimationFrame(draw);
+      };
+      draw();
+    },
+
+    drawWheel(ctx, cx, cy, r, angle) {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, cx*2, cy*2);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle * Math.PI / 180);
+      // Outer rim
+      ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.lineWidth = 26; ctx.strokeStyle = '#1a1a1a'; ctx.stroke();
+      // Rim highlight
+      ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.lineWidth = 24; ctx.strokeStyle = '#2a2a2a'; ctx.stroke();
+      // Accent marker
+      ctx.beginPath(); ctx.arc(0,0,r,-Math.PI/2-0.12,-Math.PI/2+0.12);
+      ctx.lineWidth = 24; ctx.strokeStyle = HP.state.settings.accent; ctx.stroke();
+      // Spokes
+      const spokeAngles = [0, Math.PI*2/3, Math.PI*4/3];
+      ctx.lineWidth = 14; ctx.strokeStyle = '#252525'; ctx.lineCap = 'round';
+      spokeAngles.forEach(a => {
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a)*18, Math.sin(a)*18);
+        ctx.lineTo(Math.cos(a)*(r-18), Math.sin(a)*(r-18));
+        ctx.stroke();
+      });
+      // Center
+      ctx.beginPath(); ctx.arc(0,0,36,0,Math.PI*2);
+      ctx.fillStyle = '#111'; ctx.fill();
+      ctx.lineWidth = 2; ctx.strokeStyle = HP.state.settings.accent; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = '700 11px "JetBrains Mono",monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('HP', 0, 0);
+      ctx.restore();
+    },
+
+    startLatencyGraph() {
+      const c = document.getElementById('latencyCanvas');
+      if (!c) return;
+      this.latencyCtx = c.getContext('2d');
+      const draw = () => {
+        if (HP.state.device.connected) {
+          const jitter = Math.random() * 4 - 2;
+          const base = HP.state.device.latency || 8;
+          HP.state.latencyHistory.push(base + jitter);
+        } else {
+          HP.state.latencyHistory.push(null);
+        }
+        if (HP.state.latencyHistory.length > 80) HP.state.latencyHistory.shift();
+        this.drawLatencyGraph();
+        setTimeout(draw, 100);
+      };
+      draw();
+    },
+
+    drawLatencyGraph() {
+      const ctx = this.latencyCtx;
+      if (!ctx) return;
+      const W = ctx.canvas.width, H = ctx.canvas.height;
+      ctx.clearRect(0,0,W,H);
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = 1;
+      for (let i=0;i<4;i++) { const y=H/4*i; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+      // Graph line
+      const hist = HP.state.latencyHistory;
+      if (hist.length < 2) return;
+      const max = 60, min = 0;
+      ctx.beginPath();
+      ctx.strokeStyle = HP.state.settings.accent;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      let started = false;
+      hist.forEach((val, i) => {
+        if (val === null) { started=false; return; }
+        const x = (i / (hist.length-1)) * W;
+        const y = H - ((val - min) / (max - min)) * H;
+        if (!started) { ctx.moveTo(x,y); started=true; } else ctx.lineTo(x,y);
+      });
+      ctx.stroke();
+      // Fill under
+      ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+      ctx.fillStyle = `${HP.state.settings.accent}18`;
+      ctx.fill();
+    }
+  },
+
+  /* ---- UI UTILITIES ---- */
+  ui: {
+    toast(msg, type='info') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(()=>t.remove(), 3100);
+    },
+
+    openModal(id) {
+      document.getElementById('modalOverlay').classList.add('active');
+      document.getElementById(id).classList.add('active');
+    },
+
+    closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      const open = document.querySelectorAll('.modal.active');
+      if (!open.length) document.getElementById('modalOverlay').classList.remove('active');
+    },
+
+    closeAllModals() {
+      document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active'));
+      document.getElementById('modalOverlay').classList.remove('active');
+    },
+
+    updateRoomCode() {
+      const code = HP.state.roomCode;
+      ['dashBigCode','roomCode','modalRoomCodeDisplay'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = code;
+      });
+    },
+
+    updateSidebarDevice() {
+      const d = HP.state.device;
+      const dot = document.querySelector('.sdc-dot');
+      const name = document.getElementById('sdcName');
+      const lat = document.getElementById('sdcLatency');
+      const bat = document.getElementById('sdcBattery');
+      const devPill = document.getElementById('devicePillLabel');
+      const devDot = document.getElementById('deviceDot');
+      if (dot) dot.classList.toggle('connected', d.connected);
+      if (name) name.textContent = d.connected ? d.name : 'No Device';
+      if (lat) lat.textContent = d.connected ? `${d.latency}ms` : '--';
+      if (bat) bat.textContent = d.connected ? `${d.battery}%` : '--';
+      if (devPill) devPill.textContent = d.connected ? `${d.name} · ${d.latency}ms` : 'Not Connected';
+      if (devDot) devDot.classList.toggle('active', d.connected);
+      // stat cards
+      const sc = v => document.getElementById(v);
+      if (sc('statLatency')) sc('statLatency').textContent = d.connected ? `${d.latency} ms` : '--';
+      if (sc('statConn')) sc('statConn').textContent = d.connected ? 'Online' : 'Offline';
+      if (sc('statConnType')) sc('statConnType').textContent = d.connected ? (d.transport||'Wi-Fi') : 'No transport';
+      if (sc('statInputRate')) sc('statInputRate').textContent = d.connected ? '120 Hz' : '--';
+      if (sc('statBattery')) sc('statBattery').textContent = d.connected ? `${d.battery}%` : '--';
+      if (sc('statBattSub')) sc('statBattSub').textContent = d.connected ? 'Device battery' : 'Not connected';
+      if (sc('perfLatency')) sc('perfLatency').textContent = d.connected ? `${d.latency} ms` : '--';
+      if (sc('perfRate')) sc('perfRate').textContent = d.connected ? '120 Hz' : '--';
+      if (sc('perfSignal')) { sc('perfSignal').textContent = d.connected ? (d.signal||'Excellent') : '—'; sc('perfSignal').className = 'psc-value' + (d.connected ? ' cs-success' : ''); }
+    },
+
+    initQrGrids() {
+      // QR grids are static SVG inline — just animate scan lines
+    },
+
+    updateGyroUI() {
+      const g = HP.state.inputs.gyro;
+      const set = (id, val, max) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val + (id.includes('Val') ? '°' : '');
+      };
+      set('gyroPitchVal', g.pitch); set('gyroRollVal', g.roll); set('gyroYawVal', g.yaw);
+      set('accelXVal', g.ax.toFixed(2)); set('accelYVal', g.ay.toFixed(2)); set('accelZVal', g.az.toFixed(2));
+      // Bars (center = 50%, range ±90)
+      const barPct = v => Math.min(100, Math.max(0, 50 + (v/90)*50));
+      const setBar = (id, pct) => { const el=document.getElementById(id); if(el) el.style.width=pct+'%'; };
+      setBar('gyroPitchBar', barPct(g.pitch));
+      setBar('gyroRollBar', barPct(g.roll));
+      setBar('gyroYawBar', barPct(g.yaw));
+      setBar('accelXBar', barPct(g.ax*90));
+      setBar('accelYBar', barPct(g.ay*90));
+      setBar('accelZBar', barPct(g.az*90));
+      // 3D phone transform
+      const phone = document.getElementById('gyroPhone3d');
+      if (phone) phone.style.transform = `rotateX(${-g.pitch*0.5}deg) rotateZ(${g.roll}deg) rotateY(${g.yaw*0.2}deg)`;
+    },
+
+    buildKeyboard() {
+      const rows = [
+        ['Esc','F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'],
+        ['`','1','2','3','4','5','6','7','8','9','0','-','=','⌫'],
+        ['Tab','Q','W','E','R','T','Y','U','I','O','P','[',']','\\'],
+        ['Caps','A','S','D','F','G','H','J','K','L',';',"'",'Enter'],
+        ['Shift','Z','X','C','V','B','N','M',',','.','/','Shift'],
+        ['Ctrl','Alt','⌘','Space','⌘','Alt','←','↑','↓','→']
+      ];
+      const rowIds = ['kbFnRow','kbRow1','kbRow2','kbRow3','kbRow4','kbRow5'];
+      const wideKeys = new Set(['⌫','Tab','Caps','Enter','Shift','Ctrl','Alt','⌘','Space']);
+      rows.forEach((row, ri) => {
+        const el = document.getElementById(rowIds[ri]);
+        if (!el) return;
+        row.forEach(k => {
+          const btn = document.createElement('button');
+          btn.className = 'kb-key';
+          if (k === 'Space') btn.classList.add('xxl');
+          else if (wideKeys.has(k)) btn.classList.add(k==='Enter'||k==='Shift'||k==='Caps'?'xl':'wide');
+          btn.textContent = k;
+          btn.dataset.key = k.toUpperCase();
+          btn.addEventListener('mousedown', () => pressKey(k, true));
+          btn.addEventListener('mouseup', () => pressKey(k, false));
+          btn.addEventListener('touchstart', e=>{e.preventDefault(); pressKey(k,true);},{passive:false});
+          btn.addEventListener('touchend', e=>{e.preventDefault(); pressKey(k,false);},{passive:false});
+          el.appendChild(btn);
+        });
+      });
+    },
+
+    buildNumpad() {
+      const keys = ['7','8','9','/','4','5','6','*','1','2','3','-','0','.','Enter','+'];
+      const grid = document.getElementById('numpadGrid');
+      if (!grid) return;
+      keys.forEach(k => {
+        const btn = document.createElement('button');
+        btn.className = 'kb-key';
+        if (k === 'Enter' || k === '+') btn.style.height='96px';
+        btn.textContent = k;
+        btn.addEventListener('mousedown', ()=>pressKey(k,true));
+        btn.addEventListener('mouseup', ()=>pressKey(k,false));
+        btn.addEventListener('touchstart',e=>{e.preventDefault();pressKey(k,true);},{passive:false});
+        btn.addEventListener('touchend',e=>{e.preventDefault();pressKey(k,false);},{passive:false});
+        grid.appendChild(btn);
+      });
+    },
+
+    buildHelpItems() {
+      const items = [
+        { title: '🔌 Connection Problems', steps: ['Check that your phone and PC are on the same Wi-Fi network.','Disable VPN or firewall temporarily and retry.','Try USB mode: connect cable, enable USB debugging on phone.','Restart the Hyperpulse app on both devices.','If QR fails, enter the room code manually.'] },
+        { title: '🌀 Gyroscope Not Working', steps: ['Tap "Enable Sensors" button in the Gyroscope section.','On iOS 13+, you must grant motion permission via prompt.','On Android, ensure the app has motion sensor permissions.','Restart browser or reload page.','Calibrate sensor using the Calibrate button after enabling.'] },
+        { title: '🎮 Controller Not Responding', steps: ['Verify device is shown as Connected in the sidebar.','Check the input monitor at the bottom of Gamepad mode.','Reload the page and reconnect.','Try a different controller mode and switch back.','Check browser compatibility (Chrome/Edge recommended).'] },
+        { title: '⚡ High Latency', steps: ['Switch from Wi-Fi to USB for lowest latency.','Move phone closer to router.','Close background apps on your phone.','Set polling rate to 120Hz in Settings → Connection.','Check for interference from other wireless devices.'] },
+        { title: '🔵 Bluetooth Issues', steps: ['Ensure Bluetooth is enabled on both devices.','Unpair and re-pair devices in system Bluetooth settings.','Keep devices within 10 meters of each other.','Bluetooth Web API requires Chrome/Edge on Windows.','Fallback: use Wi-Fi or USB mode.'] },
+        { title: '📱 Phone Compatibility', steps: ['Supported: any modern Android/iOS with Chrome/Safari.','Gyroscope requires device with motion sensors.','Some older devices may have limited touch points.','iOS requires Safari 14.5+ for full Web API support.','Haptic feedback works on Android and iPhone.'] }
+      ];
+      const grid = document.getElementById('helpGrid');
+      if (!grid) return;
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'help-item';
+        const header = document.createElement('div');
+        header.className = 'help-item-header';
+        header.innerHTML = `<span class="help-item-title">${item.title}</span><span class="help-item-chevron">▼</span>`;
+        const body = document.createElement('div');
+        body.className = 'help-item-body';
+        const ol = document.createElement('ol');
+        ol.className = 'help-steps';
+        item.steps.forEach(s => { const li=document.createElement('li'); li.textContent=s; ol.appendChild(li); });
+        body.appendChild(ol);
+        header.onclick = () => { div.classList.toggle('open'); };
+        div.appendChild(header);
+        div.appendChild(body);
+        grid.appendChild(div);
+      });
+    },
+
+    buildCommunityGrid() {
+      const data = [
+        {game:'GTA V',creator:'HyperUser_01',mode:'Gamepad',rating:4.9,downloads:'28.7K',tags:['gamepad','action']},
+        {game:'Forza Horizon 5',creator:'RacerPro_X',mode:'Racing',rating:4.8,downloads:'12.4K',tags:['racing','sim']},
+        {game:'Rocket League',creator:'SonicBoost',mode:'Gamepad',rating:4.7,downloads:'9.2K',tags:['gamepad','sports']},
+        {game:'Valorant',creator:'AimGod_99',mode:'Gyro',rating:4.8,downloads:'18.1K',tags:['gyro','fps']},
+        {game:'Minecraft',creator:'CraftBuilder',mode:'Custom',rating:4.6,downloads:'7.4K',tags:['custom','builder']},
+        {game:'FIFA 24',creator:'FootballKing',mode:'Gamepad',rating:4.5,downloads:'6.8K',tags:['gamepad','sports']},
+        {game:'Cyberpunk 2077',creator:'NeoGamer',mode:'Gyro',rating:4.7,downloads:'14.3K',tags:['gyro','action']},
+        {game:'Assetto Corsa',creator:'SimRacer',mode:'Racing',rating:4.9,downloads:'8.6K',tags:['racing','sim']},
+      ];
+      HP._communityData = data;
+      HP.ui.renderCommunityGrid(data);
+    },
+
+    renderCommunityGrid(data) {
+      const grid = document.getElementById('communityGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      data.forEach((item,i) => {
+        const card = document.createElement('div');
+        card.className = 'community-card';
+        card.dataset.mode = item.mode.toLowerCase();
+        const stars = '★'.repeat(Math.floor(item.rating)) + (item.rating%1>=0.5?'½':'');
+        card.innerHTML = `
+          <div class="cc-top">
+            <div class="cc-game">${item.game}</div>
+            <span class="cc-tag">${item.mode}</span>
+          </div>
+          <div class="cc-creator">by ${item.creator}</div>
+          <div class="cc-stats">
+            <span class="cc-stat"><span class="star-rating">${stars}</span> ${item.rating}</span>
+            <span class="cc-stat">⬇ ${item.downloads}</span>
+          </div>
+          <div class="cc-actions">
+            <button class="btn btn-accent btn-sm" onclick="downloadCommunityProfile(${i})">⬇ Download</button>
+            <button class="fav-btn" id="fav-${i}" onclick="toggleFav(${i})">☆</button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    },
+
+    buildProfiles() {
+      HP.state.profiles = [
+        {id:'gta', name:'GTA V', mode:'gamepad', icon:'🎮', meta:'Last used 2h ago'},
+        {id:'forza', name:'Forza Horizon 5', mode:'wheel', icon:'🏎️', meta:'Last used yesterday'},
+        {id:'val', name:'Valorant', mode:'gyro', icon:'🌀', meta:'Last used 3 days ago'},
+        {id:'mc', name:'Minecraft', mode:'custom', icon:'🎛️', meta:'Last used 1 week ago'},
+      ];
+      HP.ui.renderProfiles();
+    },
+
+    renderProfiles() {
+      const grid = document.getElementById('profilesGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      HP.state.profiles.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'profile-card';
+        card.innerHTML = `
+          <div class="pc-top"><div class="pc-icon">${p.icon}</div><div><div class="pc-name">${p.name}</div><div class="pc-mode">${p.mode.toUpperCase()}</div></div></div>
+          <div class="pc-meta">${p.meta}</div>
+          <div class="pc-actions">
+            <button class="btn btn-accent btn-sm" onclick="loadProfile('${p.id}')">▶ Load</button>
+            <button class="btn btn-ghost btn-sm" onclick="duplicateProfile('${p.id}')">⧉</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteProfile('${p.id}')">🗑</button>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+  },
+
+  phoneModeLoop() {
+    const modes = [
+      {icon:'🎮', label:'GAMEPAD'},
+      {icon:'🏎️', label:'RACING'},
+      {icon:'🌀', label:'GYRO'},
+      {icon:'🖱️', label:'MOUSE'},
+      {icon:'⌨️', label:'KEYBOARD'},
+    ];
+    let idx = 0;
+    setInterval(() => {
+      idx = (idx+1) % modes.length;
+      const m = modes[idx];
+      const iconEl = document.querySelector('.phone-mode-icon');
+      const lblEl = document.querySelector('.phone-mode-label');
+      if (iconEl) { iconEl.style.opacity='0'; setTimeout(()=>{iconEl.textContent=m.icon; iconEl.style.opacity='1';},250); }
+      if (lblEl)  { lblEl.style.opacity='0';  setTimeout(()=>{lblEl.textContent=m.label; lblEl.style.opacity='1';},250); }
+    }, 2500);
   }
+};
+
+/* ==========================================================================
+   GLOBAL HANDLER FUNCTIONS (called from HTML)
+   ========================================================================== */
+
+// ---- NAVIGATION ----
+function navigate(pageId) { HP.nav.go(pageId); }
+function scrollToSection(id) {
+  if (HP.state.page !== 'landing') navigate('landing');
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({behavior:'smooth'});
+  }, 100);
+}
+function switchMode(mode) { HP.state.mode = mode; }
+function toggleMobileNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+
+// ---- AUTH ----
+function switchAuthTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+  document.getElementById('authFormLogin').style.display = tab==='login' ? '' : 'none';
+  document.getElementById('authFormSignup').style.display = tab==='signup' ? '' : 'none';
+}
+function doLogin() {
+  const email = document.getElementById('loginEmail')?.value || 'user@demo.com';
+  const name = email.split('@')[0];
+  HP.state.user = { name, email };
+  document.getElementById('userAvatarInitial').textContent = name[0].toUpperCase();
+  document.getElementById('userMenuName').textContent = name;
+  navigate('dashboard');
+  HP.ui.toast(`Welcome back, ${name}!`, 'success');
+}
+function doSignup() {
+  const name = document.getElementById('signupName')?.value || 'New User';
+  const email = document.getElementById('signupEmail')?.value || 'user@demo.com';
+  HP.state.user = { name, email };
+  document.getElementById('userAvatarInitial').textContent = name[0].toUpperCase();
+  document.getElementById('userMenuName').textContent = name;
+  navigate('dashboard');
+  HP.ui.toast(`Account created! Welcome, ${name}!`, 'success');
+}
+function doLogout() {
+  HP.state.user = null;
+  navigate('landing');
+  HP.ui.toast('Logged out.', 'info');
+  toggleUserMenu();
+}
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
 }
 
+// ---- DASHBOARD SECTIONS ----
+function switchDashSection(section) {
+  document.querySelectorAll('.dash-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+  const el = document.getElementById('ds-'+section);
+  if (el) el.classList.add('active');
+  const btn = document.getElementById('snav-'+section);
+  if (btn) btn.classList.add('active');
+  HP.state.dashSection = section;
+  const labels = {dashboard:'Dashboard',gamepad:'Gamepad',wheel:'Racing Wheel',gyro:'Gyroscope',mouse:'Mouse Trackpad',keyboard:'Keyboard',custom:'Custom Builder',profiles:'Game Profiles',community:'Community',multiplayer:'Multiplayer',performance:'Performance',settings:'Settings',help:'Help & Troubleshoot'};
+  document.getElementById('dashBreadcrumb').textContent = labels[section] || section;
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('mobile-open');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+// ---- GAMEPAD ----
+function pressBtn(name, isDown) {
+  HP.state.inputs.buttons[name] = isDown;
+  const el = document.getElementById('btn'+name);
+  if (el) el.classList.toggle('pressed', isDown);
+  if (isDown && navigator.vibrate) try { navigator.vibrate(25); } catch(e){}
+  // Update debug
+  const active = Object.keys(HP.state.inputs.buttons).filter(k=>HP.state.inputs.buttons[k]);
+  const dbg = document.getElementById('dbgBtns');
+  if (dbg) dbg.textContent = active.length ? active.join(', ') : '—';
+  const dpad = ['UP','DOWN','LEFT','RIGHT'];
+  const dpadActive = dpad.filter(k=>HP.state.inputs.buttons[k]);
+  const ddbg = document.getElementById('dbgDpad');
+  if (ddbg) ddbg.textContent = dpadActive.length ? dpadActive.join('+') : '—';
+  HP.broadcast.send();
+}
+
+// ---- RACING WHEEL ----
 function shiftGear(delta) {
-  playSound('gear');
-  triggerHaptic(50);
-  let g = state.inputs.wheel.gear + delta;
-  if (g >= -1 && g <= 6) {
-    state.inputs.wheel.gear = g;
-    document.getElementById('cockpitGear').innerText = g === -1 ? 'R' : g === 0 ? 'N' : g;
-    updateRPMBar();
-    broadcastInputs();
-  }
+  let g = HP.state.inputs.wheel.gear + delta;
+  g = Math.max(-1, Math.min(6, g));
+  HP.state.inputs.wheel.gear = g;
+  const labels = {'-1':'R', '0':'N'};
+  document.getElementById('cockpitGear').textContent = labels[g] ?? g;
+  if (navigator.vibrate) try { navigator.vibrate(40); } catch(e) {}
+  HP.broadcast.send();
+}
+function handlePedal(type, val) {
+  val = parseInt(val);
+  HP.state.inputs.wheel[type] = val;
+  document.getElementById(type+'Val').textContent = val+'%';
+  document.getElementById(type+'Fill').style.height = val+'%';
+  // Simulate speed from throttle/brake
+  HP.state.inputs.wheel.speed = Math.round(val * 2.8);
+  document.getElementById('cockpitSpeed').textContent = HP.state.inputs.wheel.speed;
+  HP.broadcast.send();
+}
+function toggleGyroSteering() {
+  const toggle = document.getElementById('gyroToggle');
+  toggle.classList.toggle('on');
+  const active = toggle.classList.contains('on');
+  const badge = document.getElementById('wheelGyroBadge');
+  if (badge) badge.classList.toggle('active', active);
+  document.getElementById('gyroActiveDot').classList.toggle('active', active);
+  document.getElementById('gyroActiveLabel').textContent = active ? 'Gyro Active' : 'Gyro Off';
+  HP.ui.toast(active ? '🌀 Gyro steering ON' : 'Gyro steering OFF', 'info');
+  if (active) requestMotionPermission();
 }
 
-function handlePedalInput(pedal, val) {
-  state.inputs.wheel[pedal] = parseFloat(val);
-  updateRPMBar();
-  broadcastInputs();
-}
-
-function updateRPMBar() {
-  const leds = document.querySelectorAll('#rpmBar .led');
-  const throttle = state.inputs.wheel.throttle;
-  let activeCount = Math.floor((throttle / 100) * leds.length);
-  leds.forEach((led, i) => led.classList.toggle('active', i < activeCount));
-}
-
-function updateWheelTelemetry() {
-  document.getElementById('wheelAngleText').innerText = Math.round(state.inputs.wheel.angle) + '°';
-  broadcastInputs();
-}
-
-function renderWheelLoop() {
-  if (!isDraggingWheel && state.inputs.wheel.angle !== 0) {
-    state.inputs.wheel.angle *= 0.88;
-    if (Math.abs(state.inputs.wheel.angle) < 0.5) state.inputs.wheel.angle = 0;
-    updateWheelTelemetry();
-  }
-
-  // Draw G29 Steering Wheel Canvas (Industrial Palette)
-  drawG29Wheel(wheelCanvasCtx, 180, 180, 140, state.inputs.wheel.angle);
-  drawG29Wheel(heroWheelCtx, 140, 140, 110, performance.now() * 0.05);
-
-  requestAnimationFrame(renderWheelLoop);
-}
-
-function drawG29Wheel(ctx, cx, cy, radius, angleDeg) {
-  if (!ctx) return;
-  ctx.clearRect(0, 0, cx * 2, cy * 2);
-
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate((angleDeg * Math.PI) / 180);
-
-  // Outer Rubber Rim
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-  ctx.lineWidth = 24;
-  ctx.strokeStyle = '#161616';
-  ctx.stroke();
-
-  // Red Center Stripe
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, -Math.PI / 2 - 0.1, -Math.PI / 2 + 0.1);
-  ctx.lineWidth = 24;
-  ctx.strokeStyle = '#cc1111';
-  ctx.stroke();
-
-  // Metallic Center Spokes
-  ctx.beginPath();
-  ctx.moveTo(-radius + 15, 0); ctx.lineTo(radius - 15, 0);
-  ctx.moveTo(0, 0); ctx.lineTo(0, radius - 15);
-  ctx.lineWidth = 12;
-  ctx.strokeStyle = '#333';
-  ctx.stroke();
-
-  // Center Badge
-  ctx.beginPath();
-  ctx.arc(0, 0, 40, 0, Math.PI * 2);
-  ctx.fillStyle = '#0a0a0a';
-  ctx.fill();
-  ctx.lineWidth = 3;
-  ctx.strokeStyle = '#cc1111';
-  ctx.stroke();
-
-  // Logo Text
-  ctx.fillStyle = '#fff';
-  ctx.font = '800 12px "JetBrains Mono"';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('HP-G29', 0, 0);
-
-  ctx.restore();
-}
-
-// --- GYROSCOPE & ARTIFICIAL HORIZON ---
-let horizonCtx = null;
-
-function initHorizonCanvas() {
-  const canvas = document.getElementById('horizonCanvas');
-  if (canvas) horizonCtx = canvas.getContext('2d');
-  renderHorizonLoop();
-}
-
-function initSensors() {
-  if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', (e) => {
-      if (e.beta !== null) {
-        state.inputs.gyro.pitch = parseFloat((e.beta - state.inputs.gyro.zeroPitch).toFixed(1));
-        state.inputs.gyro.roll = parseFloat((e.gamma - state.inputs.gyro.zeroRoll).toFixed(1));
-        state.inputs.gyro.yaw = parseFloat(((e.alpha || 0) - state.inputs.gyro.zeroYaw).toFixed(1));
-
-        document.getElementById('gyroPitchVal').innerText = state.inputs.gyro.pitch + '°';
-        document.getElementById('gyroRollVal').innerText = state.inputs.gyro.roll + '°';
-        document.getElementById('gyroYawVal').innerText = state.inputs.gyro.yaw + '°';
-
-        broadcastInputs();
-      }
-    });
-  }
-}
-
+// ---- GYROSCOPE ----
 function requestMotionPermission() {
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(res => showToast('Motion Permission: ' + res));
+    DeviceOrientationEvent.requestPermission()
+      .then(res => { HP.ui.toast('Motion sensors: ' + res, res==='granted'?'success':'error'); HP.state.gyroActive = res==='granted'; })
+      .catch(() => HP.ui.toast('Permission denied', 'error'));
   } else {
-    showToast('Motion Sensors Active');
+    HP.ui.toast('Motion sensors active (no permission required)', 'success');
+    // Demo mode: simulate gyro
+    HP.input.startGyroSimulation();
   }
 }
-
+HP.input.startGyroSimulation = function() {
+  if (HP._gyroSim) return;
+  let t = 0;
+  HP._gyroSim = setInterval(() => {
+    t += 0.05;
+    HP.state.inputs.gyro.pitch = parseFloat((Math.sin(t) * 20).toFixed(1));
+    HP.state.inputs.gyro.roll  = parseFloat((Math.cos(t*0.7) * 15).toFixed(1));
+    HP.state.inputs.gyro.yaw   = parseFloat((Math.sin(t*0.3) * 30).toFixed(1));
+    HP.state.inputs.gyro.ax    = parseFloat((Math.sin(t*1.2) * 0.5).toFixed(3));
+    HP.state.inputs.gyro.ay    = parseFloat((Math.cos(t*0.9) * 0.8).toFixed(3));
+    HP.state.inputs.gyro.az    = parseFloat((0.98 + Math.sin(t*2)*0.02).toFixed(3));
+    HP.ui.updateGyroUI();
+    if (HP.state.mode === 'wheel' && document.getElementById('gyroToggle')?.classList.contains('on')) {
+      HP.state.inputs.wheel.angle = HP.state.inputs.gyro.roll * (HP.state.settings.wheelSens / 100) * 5;
+      HP.render.updateWheelAngle();
+    }
+  }, 50);
+};
 function calibrateGyroZero() {
-  playSound('chime');
-  state.inputs.gyro.zeroPitch = state.inputs.gyro.pitch;
-  state.inputs.gyro.zeroRoll = state.inputs.gyro.roll;
-  state.inputs.gyro.zeroYaw = state.inputs.gyro.yaw;
-  showToast('🎯 Gyro Zero Calibrated');
+  const g = HP.state.inputs.gyro;
+  HP.state.gyroZero = { pitch: g.pitch, roll: g.roll, yaw: g.yaw };
+  HP.ui.toast('⊕ Gyro calibrated to zero', 'success');
 }
 
-function renderHorizonLoop() {
-  if (horizonCtx) {
-    const w = 400, h = 300;
-    horizonCtx.clearRect(0, 0, w, h);
+// ---- MOUSE ----
+function pressMouseBtn(btn, isDown) {
+  HP.state.inputs.mouse[btn] = isDown;
+  const ids = {left:'mouseLeftBtn', middle:'mouseMiddleBtn', right:'mouseRightBtn'};
+  const el = document.getElementById(ids[btn]);
+  if (el) el.classList.toggle('pressed', isDown);
+  const active = ['left','middle','right'].filter(b=>HP.state.inputs.mouse[b]);
+  document.getElementById('mouseClickState').textContent = active.length ? active.join('+').toUpperCase()+' CLICK' : '—';
+  HP.broadcast.send();
+}
 
-    const pitchOffset = state.inputs.gyro.pitch * 2;
-    const rollAngle = (state.inputs.gyro.roll * Math.PI) / 180;
-
-    horizonCtx.save();
-    horizonCtx.translate(w / 2, h / 2 + pitchOffset);
-    horizonCtx.rotate(rollAngle);
-
-    // Horizon Line
-    horizonCtx.beginPath();
-    horizonCtx.moveTo(-w, 0); horizonCtx.lineTo(w, 0);
-    horizonCtx.lineWidth = 2;
-    horizonCtx.strokeStyle = '#cc1111';
-    horizonCtx.stroke();
-
-    horizonCtx.restore();
+// ---- KEYBOARD ----
+function pressKey(key, isDown) {
+  HP.state.inputs.keys[key] = isDown;
+  const els = document.querySelectorAll(`[data-key="${key.toUpperCase()}"]`);
+  els.forEach(el => el.classList.toggle('pressed', isDown));
+  if (isDown) {
+    document.getElementById('lastKeyPressed').textContent = key;
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch(e) {}
+    HP.broadcast.send();
   }
-
-  requestAnimationFrame(renderHorizonLoop);
+}
+function switchKbMode(mode) {
+  document.querySelectorAll('.kb-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.keyboard-view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('kbt-'+mode).classList.add('active');
+  document.getElementById('kb-'+mode).classList.add('active');
 }
 
-// --- MOUSE CLICK HANDLERS ---
-function handleMouseClick(btnType, isDown) {
-  playSound('click');
-  triggerHaptic(30);
-  state.inputs.mouse[btnType] = isDown;
-  broadcastInputs();
-}
-
-// --- TELEMETRY UPDATE LOOP ---
-function startTelemetryUpdateLoop() {
-  setInterval(() => updateHostTelemetryUI(), 50);
-}
-
-function updateHostTelemetryUI() {
-  const b = state.inputs.buttons;
-  for (let key in b) {
-    const chip = document.getElementById('chip-' + key);
-    if (chip) chip.classList.toggle('active', b[key]);
-  }
-
-  document.getElementById('teleStickL').innerText = `LX: ${state.inputs.sticks.LX} | LY: ${state.inputs.sticks.LY}`;
-  document.getElementById('teleStickR').innerText = `RX: ${state.inputs.sticks.RX} | RY: ${state.inputs.sticks.RY}`;
-
-  document.getElementById('teleWheelAngle').innerText = Math.round(state.inputs.wheel.angle) + '°';
-  document.getElementById('telePitch').innerText = state.inputs.gyro.pitch + '°';
-  document.getElementById('teleRoll').innerText = state.inputs.gyro.roll + '°';
-}
-
-// --- WORKSTATION BUILDER ---
-function addCustomButton() {
-  playSound('click');
+// ---- CUSTOM BUILDER ----
+let builderDragType = null;
+function dragPalette(e, type) { builderDragType = type; e.dataTransfer.effectAllowed = 'copy'; }
+function dropOnCanvas(e) {
+  if (!builderDragType) return;
   const canvas = document.getElementById('builderCanvas');
-  const btn = document.createElement('button');
-  btn.className = 'cyber-button sm primary';
-  btn.innerText = 'BTN_CUSTOM';
-  btn.style.position = 'absolute';
-  btn.style.top = '100px'; btn.style.left = '100px';
-  canvas.appendChild(btn);
-  showToast('+ Custom Button Added');
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left - 50;
+  const y = e.clientY - rect.top - 30;
+  const hint = canvas.querySelector('.builder-grid-hint');
+  if (hint) hint.remove();
+  const el = document.createElement('div');
+  el.className = `builder-element b-${builderDragType}`;
+  el.style.left = Math.max(0,x)+'px';
+  el.style.top  = Math.max(0,y)+'px';
+  const labels = {joystick:'Stick',button:'BTN',dpad:'D-Pad',trigger:'Trigger',slider:'Slider',touchpad:'Touchpad',gyro:'Gyro',macro:'Macro'};
+  el.textContent = labels[builderDragType] || builderDragType;
+  const del = document.createElement('button');
+  del.className = 'del-btn'; del.textContent = '×';
+  del.onclick = (ev) => { ev.stopPropagation(); el.remove(); };
+  el.appendChild(del);
+  makeDraggable(el);
+  el.onclick = () => { document.querySelectorAll('.builder-element').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); showBuilderProps(el); };
+  canvas.appendChild(el);
+  builderDragType = null;
 }
-
-function addCustomStick() {
-  playSound('click');
+function makeDraggable(el) {
+  let ox=0,oy=0,sx=0,sy=0;
+  el.addEventListener('mousedown', e=>{
+    if (e.target.classList.contains('del-btn')) return;
+    sx=e.clientX; sy=e.clientY;
+    ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+    const move = ev=>{el.style.left=(ox+ev.clientX-sx)+'px'; el.style.top=(oy+ev.clientY-sy)+'px';};
+    const up = ()=>{ window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); };
+    window.addEventListener('mousemove',move); window.addEventListener('mouseup',up);
+  });
+}
+function showBuilderProps(el) {
+  const panel = document.getElementById('builderProps');
+  panel.innerHTML = `<div style="font-size:0.78rem;color:var(--text-m);margin-bottom:8px;">Position: <b style="color:var(--text)">${el.style.left} / ${el.style.top}</b></div><div style="font-size:0.78rem;color:var(--text-m);">Type: <b style="color:var(--accent)">${el.className.split('b-')[1]?.split(' ')[0]||'element'}</b></div>`;
+}
+function clearBuilder() {
   const canvas = document.getElementById('builderCanvas');
-  const stick = document.createElement('div');
-  stick.className = 'touch-stick-base';
-  stick.style.position = 'absolute';
-  stick.style.top = '200px'; stick.style.left = '200px';
-  canvas.appendChild(stick);
-  showToast('+ Custom Stick Added');
+  canvas.innerHTML = '<div class="builder-grid-hint">Drag controls here to build your layout</div>';
+  document.getElementById('builderProps').innerHTML = '<div class="empty-props">No element selected</div>';
+}
+function saveBuilderProfile() {
+  const name = document.getElementById('builderProfileName')?.value || 'Custom Layout';
+  HP.ui.toast(`💾 Profile "${name}" saved`, 'success');
+}
+function loadBuilderProfile() { HP.ui.toast('📂 Load profile coming soon', 'info'); }
+
+// ---- GAME PROFILES ----
+function openNewProfileModal() { HP.ui.openModal('newProfileModal'); }
+function createProfile() {
+  const name = document.getElementById('npGameName')?.value;
+  const mode = document.getElementById('npMode')?.value;
+  if (!name) { HP.ui.toast('Enter a game name', 'error'); return; }
+  const modeIcons = {gamepad:'🎮',wheel:'🏎️',gyro:'🌀',mouse:'🖱️',keyboard:'⌨️',custom:'🎛️'};
+  HP.state.profiles.unshift({id:'p'+Date.now(), name, mode, icon:modeIcons[mode]||'🎮', meta:'Just created'});
+  HP.ui.renderProfiles();
+  HP.ui.closeModal('newProfileModal');
+  HP.ui.toast(`Profile "${name}" created!`, 'success');
+}
+function loadProfile(id) {
+  const p = HP.state.profiles.find(x=>x.id===id);
+  if (p) { HP.state.mode = p.mode; switchDashSection(p.mode==='wheel'?'wheel':p.mode==='gyro'?'gyro':p.mode); HP.ui.toast(`▶ Loaded: ${p.name}`, 'success'); }
+}
+function duplicateProfile(id) {
+  const p = HP.state.profiles.find(x=>x.id===id);
+  if (p) { const copy={...p, id:'p'+Date.now(), name:p.name+' (copy)', meta:'Just created'}; HP.state.profiles.push(copy); HP.ui.renderProfiles(); HP.ui.toast('Profile duplicated', 'info'); }
+}
+function deleteProfile(id) {
+  HP.state.profiles = HP.state.profiles.filter(x=>x.id!==id);
+  HP.ui.renderProfiles();
+  HP.ui.toast('Profile deleted', 'info');
+}
+function importProfile() { HP.ui.toast('📥 Import via file coming soon', 'info'); }
+
+// ---- COMMUNITY ----
+function filterCommunity(query) {
+  const q = (query || document.getElementById('communitySearch')?.value || '').toLowerCase();
+  const modeFilter = document.getElementById('communityFilter')?.value?.toLowerCase() || '';
+  const filtered = HP._communityData?.filter(d => {
+    const matchQ = !q || d.game.toLowerCase().includes(q) || d.creator.toLowerCase().includes(q);
+    const matchM = !modeFilter || d.mode.toLowerCase().includes(modeFilter);
+    return matchQ && matchM;
+  }) || [];
+  HP.ui.renderCommunityGrid(filtered);
+}
+function sortCommunity(by) {
+  const data = [...(HP._communityData || [])];
+  if (by === 'rating') data.sort((a,b)=>b.rating-a.rating);
+  else if (by === 'downloads') data.sort((a,b)=>parseFloat(b.downloads)-parseFloat(a.downloads));
+  HP.ui.renderCommunityGrid(data);
+}
+function downloadCommunityProfile(i) { HP.ui.toast('⬇ Profile downloaded to your library!', 'success'); }
+function toggleFav(i) {
+  const btn = document.getElementById('fav-'+i);
+  if (!btn) return;
+  btn.classList.toggle('active');
+  btn.textContent = btn.classList.contains('active') ? '★' : '☆';
+  HP.ui.toast(btn.classList.contains('active') ? '★ Added to favorites' : 'Removed from favorites', 'info');
+}
+function openUploadModal() { HP.ui.openModal('uploadModal'); }
+function uploadCommunityProfile() { HP.ui.closeModal('uploadModal'); HP.ui.toast('↑ Profile shared with community!', 'success'); }
+
+// ---- MULTIPLAYER ----
+function newRoomCode() {
+  HP.state.roomCode = 'HYPER-' + (1000 + Math.floor(Math.random()*9000));
+  HP.ui.updateRoomCode();
+  HP.ui.toast('⟳ New room code generated', 'info');
+}
+function copyRoomCode() {
+  if (navigator.clipboard) navigator.clipboard.writeText(HP.state.roomCode);
+  HP.ui.toast('📋 Room code copied!', 'success');
+}
+function startMultiplayerSession() { HP.ui.toast('▶ Multiplayer session started — share code with players', 'success'); }
+
+// ---- DEVICE CONNECTION ----
+function openConnectModal() { HP.ui.openModal('connectModal'); }
+function switchConnectTab(tab) {
+  document.querySelectorAll('.cmt').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.cmc').forEach(c=>c.classList.remove('active'));
+  document.getElementById('cmt-'+tab).classList.add('active');
+  document.getElementById('cmc-'+tab).classList.add('active');
+}
+function simulateConnect(transport) {
+  const status = document.getElementById('modalDeviceStatus');
+  if (status) status.textContent = `⏳ Searching for devices on ${transport}...`;
+  setTimeout(() => {
+    HP.state.device = { connected: true, name: "Mani's Phone", battery: 74, latency: 8, transport, signal: 'Excellent' };
+    if (status) status.textContent = '● Connected — Mani\'s Phone (8ms)';
+    HP.ui.updateSidebarDevice();
+    addConnLog(`Device connected via ${transport}`);
+    setTimeout(() => { HP.ui.closeModal('connectModal'); HP.ui.toast(`✓ Connected via ${transport}`, 'success'); }, 800);
+  }, 1500);
+}
+function connectUsb() {
+  if (navigator.usb) {
+    navigator.usb.requestDevice({filters:[]})
+      .then(d => { simulateConnect('USB'); })
+      .catch(() => simulateConnect('USB'));
+  } else { simulateConnect('USB'); }
+}
+function joinByCode() {
+  const code = document.getElementById('manualCodeInput')?.value?.trim();
+  if (!code) return HP.ui.toast('Enter a room code', 'error');
+  simulateConnect('Wi-Fi');
+}
+function closeModal(id) { HP.ui.closeModal(id); }
+function closeAllModals() { HP.ui.closeAllModals(); }
+
+// ---- PERFORMANCE ----
+function addConnLog(msg) {
+  const log = document.getElementById('connLog');
+  if (!log) return;
+  const now = new Date(); const time = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.textContent = `[${time}] ${msg}`;
+  log.insertBefore(entry, log.firstChild);
+}
+function clearPerfLog() { const l=document.getElementById('connLog'); if(l) l.innerHTML=''; }
+
+// ---- SETTINGS ----
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.settings-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('stab-'+tab).classList.add('active');
+  document.getElementById('spane-'+tab).classList.add('active');
+}
+function applyTheme(theme) {
+  const root = document.documentElement;
+  if (theme==='amoled') { root.style.setProperty('--bg','#000000'); root.style.setProperty('--bg-2','#050505'); }
+  else if (theme==='light') { root.style.setProperty('--bg','#f5f5f5'); root.style.setProperty('--bg-2','#ffffff'); root.style.setProperty('--text','#111'); root.style.setProperty('--text-m','#555'); }
+  else { root.style.setProperty('--bg','#0a0a0a'); root.style.setProperty('--bg-2','#111111'); root.style.setProperty('--text','#f0f0f0'); root.style.setProperty('--text-m','#888888'); }
+}
+function setAccent(color) {
+  document.documentElement.style.setProperty('--accent', color);
+  HP.state.settings.accent = color;
+  HP.ui.toast('Accent color updated', 'info');
+}
+function resetSettings() { HP.ui.toast('Settings reset to defaults', 'info'); }
+function saveSettings() { HP.ui.toast('💾 Settings saved', 'success'); }
+
+// ---- HELP ----
+function filterHelp(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.help-item').forEach(item => {
+    const title = item.querySelector('.help-item-title')?.textContent.toLowerCase() || '';
+    item.style.display = title.includes(q) ? '' : 'none';
+  });
 }
 
-function saveCustomLayout() {
-  playSound('chime');
-  showToast('💾 Profile Saved');
-}
+// ---- INIT ----
+document.addEventListener('DOMContentLoaded', () => HP.init());
+
+// Close user menu on outside click
+document.addEventListener('click', e => {
+  const menu = document.getElementById('userMenu');
+  const avatar = document.getElementById('userAvatar');
+  if (menu && !avatar?.contains(e.target) && !menu.contains(e.target)) menu.classList.remove('open');
+});
+
+// Prevent joystick context menu on mobile
+document.querySelectorAll?.('.joystick-base, .trackpad-surface');
+document.addEventListener('contextmenu', e => {
+  if (e.target.closest?.('.joystick-base') || e.target.closest?.('.trackpad-surface')) e.preventDefault();
+});
