@@ -1016,3 +1016,9 @@ kbd { background:var(--bg-3); border:1px solid var(--border-lt); border-radius:5
 .connect-spinner.active { display:flex; }
 .spinner-ring { width:36px; height:36px; border:3px solid var(--border-lt); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
+
+/* SIDEBAR BATTERY BAR */
+.sdc-battery-bar { height:4px; background:var(--border); border-radius:2px; margin:6px 0; overflow:hidden; }
+.sdc-battery-fill { height:100%; border-radius:2px; background:var(--success); transition:width 0.4s ease, background 0.4s ease; }
+.sdc-battery-fill.warn  { background:var(--warning); }
+.sdc-battery-fill.crit  { background:var(--danger); }

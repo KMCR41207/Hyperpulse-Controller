@@ -388,6 +388,12 @@ const HP = {
       if (name) name.textContent = d.connected ? d.name : 'No Device';
       if (lat) lat.textContent = d.connected ? `${d.latency}ms` : '--';
       if (bat) bat.textContent = d.connected ? `${d.battery}%` : '--';
+      // Battery bar
+      const fill = document.getElementById('sdcBatteryFill');
+      if (fill) {
+        fill.style.width = d.connected ? d.battery + '%' : '0%';
+        fill.className = 'sdc-battery-fill' + (d.battery < 20 ? ' crit' : d.battery < 40 ? ' warn' : '');
+      }
       if (devPill) devPill.textContent = d.connected ? `${d.name} · ${d.latency}ms` : 'Not Connected';
       if (devDot) devDot.classList.toggle('active', d.connected);
       // stat cards
