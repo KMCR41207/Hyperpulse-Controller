@@ -934,3 +934,15 @@ textarea.form-input { resize: vertical; }
 .reveal-delay-3 { transition-delay:0.3s; }
 .reveal-delay-4 { transition-delay:0.4s; }
 .reveal-delay-5 { transition-delay:0.5s; }
+
+/* TESTIMONIALS */
+.testimonials-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+.testimonial-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; display:flex; flex-direction:column; gap:14px; transition:all 0.2s; }
+.testimonial-card:hover { border-color:var(--border-lt); transform:translateY(-3px); }
+.tc-stars { color:var(--warning); font-size:0.9rem; letter-spacing:2px; }
+.tc-text { font-size:0.9rem; color:var(--text-m); line-height:1.7; font-style:italic; flex:1; }
+.tc-author { display:flex; align-items:center; gap:10px; }
+.tc-avatar { width:36px; height:36px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:0.9rem; font-weight:700; color:#fff; flex-shrink:0; }
+.tc-name { font-size:0.875rem; font-weight:700; }
+.tc-meta { font-size:0.75rem; color:var(--text-d); }
+@media (max-width:768px) { .testimonials-grid { grid-template-columns:1fr; } }
