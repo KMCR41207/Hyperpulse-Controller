@@ -644,7 +644,9 @@
             </div>
           </div>
           <div class="input-debug-panel">
-            <div class="debug-title">LIVE INPUT MONITOR</div>
+            <div class="debug-title">LIVE INPUT MONITOR
+              <label class="haptic-toggle-label"><input type="checkbox" id="hapticToggle" checked onchange="HP.hapticEnabled=this.checked"> Haptic</label>
+            </div>
             <div class="debug-grid">
               <div class="debug-row"><span>Left Stick</span><span id="dbgLS">X: 0.00  Y: 0.00</span></div>
               <div class="debug-row"><span>Right Stick</span><span id="dbgRS">X: 0.00  Y: 0.00</span></div>

@@ -669,11 +669,13 @@ function toggleSidebar() {
 }
 
 // ---- GAMEPAD ----
+HP.hapticEnabled = true;
+
 function pressBtn(name, isDown) {
   HP.state.inputs.buttons[name] = isDown;
   const el = document.getElementById('btn'+name);
   if (el) el.classList.toggle('pressed', isDown);
-  if (isDown && navigator.vibrate) try { navigator.vibrate(25); } catch(e){}
+  if (isDown && HP.hapticEnabled && navigator.vibrate) try { navigator.vibrate(25); } catch(e){}
   // Update debug
   const active = Object.keys(HP.state.inputs.buttons).filter(k=>HP.state.inputs.buttons[k]);
   const dbg = document.getElementById('dbgBtns');
