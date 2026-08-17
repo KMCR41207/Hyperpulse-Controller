@@ -961,3 +961,14 @@ textarea.form-input { resize: vertical; }
 .tpp-left { background:linear-gradient(90deg,#6c63ff,#a09aff); }
 .tpp-right { background:linear-gradient(90deg,#00d4ff,#00ff88); }
 .tpp-slider { width:100px; accent-color:var(--accent); }
+
+/* RPM SHIFT BAR */
+.rpm-bar { display:flex; justify-content:center; gap:6px; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; }
+.rpm-led { width:28px; height:10px; border-radius:3px; opacity:0.2; transition:opacity 0.08s, box-shadow 0.08s; }
+.rpm-led.green  { background:#00ff88; }
+.rpm-led.yellow { background:var(--warning); }
+.rpm-led.red    { background:var(--danger); }
+.rpm-led.on { opacity:1; }
+.rpm-led.green.on  { box-shadow:0 0 8px #00ff88; }
+.rpm-led.yellow.on { box-shadow:0 0 8px var(--warning); }
+.rpm-led.red.on    { box-shadow:0 0 8px var(--danger); }

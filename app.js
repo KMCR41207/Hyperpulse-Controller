@@ -1054,3 +1054,16 @@ function updateTriggerPressure(trigger, val) {
     (HP.state.inputs.triggers['L2']||0) + '% / ' + (HP.state.inputs.triggers['R2']||0) + '%';
   HP.broadcast.send();
 }
+
+/* ---- RPM SHIFT BAR ---- */
+function updateRPMBar(throttle) {
+  const leds = document.querySelectorAll('#rpmBar .rpm-led');
+  const active = Math.round((throttle / 100) * leds.length);
+  leds.forEach((led, i) => led.classList.toggle('on', i < active));
+}
+// Hook into pedal handler
+const _origHandlePedal = handlePedal;
+handlePedal = function(type, val) {
+  _origHandlePedal(type, val);
+  if (type === 'throttle') updateRPMBar(parseInt(val));
+};

@@ -703,6 +703,16 @@
             </div>
           </div>
         </div>
+        <div class="rpm-bar" id="rpmBar">
+          <div class="rpm-led green" id="rpm0"></div>
+          <div class="rpm-led green" id="rpm1"></div>
+          <div class="rpm-led yellow" id="rpm2"></div>
+          <div class="rpm-led yellow" id="rpm3"></div>
+          <div class="rpm-led yellow" id="rpm4"></div>
+          <div class="rpm-led red" id="rpm5"></div>
+          <div class="rpm-led red" id="rpm6"></div>
+          <div class="rpm-led red" id="rpm7"></div>
+        </div>
         <div class="wheel-settings-row">
           <div class="ws-group"><label>Sensitivity <span id="wheelSensVal">72%</span></label><input type="range" min="1" max="100" value="72" oninput="HP.settings.wheelSens=this.value;document.getElementById('wheelSensVal').textContent=this.value+'%'"></div>
           <div class="ws-group"><label>Dead Zone <span id="wheelDzVal">4%</span></label><input type="range" min="0" max="30" value="4" oninput="HP.settings.wheelDz=this.value;document.getElementById('wheelDzVal').textContent=this.value+'%'"></div>
