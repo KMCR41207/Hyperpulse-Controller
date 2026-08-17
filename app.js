@@ -950,10 +950,13 @@ function switchConnectTab(tab) {
 }
 function simulateConnect(transport) {
   const status = document.getElementById('modalDeviceStatus');
-  if (status) status.textContent = `⏳ Searching for devices on ${transport}...`;
+  const spinner = document.getElementById('connectSpinner');
+  if (status) status.textContent = '';
+  if (spinner) spinner.classList.add('active');
   addConnLog(`Searching for devices on ${transport}...`);
   setTimeout(() => {
     HP.state.device = { connected: true, name: "Mani's Phone", battery: 74, latency: 8, transport, signal: 'Excellent' };
+    if (spinner) spinner.classList.remove('active');
     if (status) status.textContent = '● Connected — Mani\'s Phone (8ms)';
     HP.ui.updateSidebarDevice();
     addConnLog(`✓ Device connected: Mani's Phone`);

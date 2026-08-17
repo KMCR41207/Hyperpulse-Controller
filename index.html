@@ -1103,6 +1103,10 @@
   <div id="cmc-bt" class="cmc"><p class="modal-hint">Enable Bluetooth on both devices, then click pair.</p><button class="btn btn-accent btn-full" onclick="simulateConnect('Bluetooth')">Pair via Bluetooth</button></div>
   <div id="cmc-usb" class="cmc"><p class="modal-hint">Connect your phone via USB cable. Enable USB debugging on your device.</p><button class="btn btn-accent btn-full" onclick="connectUsb()">Connect USB</button></div>
   <div class="modal-device-status" id="modalDeviceStatus"></div>
+  <div class="connect-spinner" id="connectSpinner">
+    <div class="spinner-ring"></div>
+    <span>Searching for devices...</span>
+  </div>
 </div>
 
 <!-- New Profile Modal -->
