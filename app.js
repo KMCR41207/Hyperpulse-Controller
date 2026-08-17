@@ -571,6 +571,7 @@ const HP = {
           <div class="pc-actions">
             <button class="btn btn-accent btn-sm" onclick="loadProfile('${p.id}')">▶ Load</button>
             <button class="btn btn-ghost btn-sm" onclick="duplicateProfile('${p.id}')">⧉</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportProfile('${p.id}')">↓</button>
             <button class="btn btn-ghost btn-sm" onclick="deleteProfile('${p.id}')">🗑</button>
           </div>`;
         grid.appendChild(card);
@@ -858,7 +859,40 @@ function deleteProfile(id) {
   HP.ui.renderProfiles();
   HP.ui.toast('Profile deleted', 'info');
 }
-function importProfile() { HP.ui.toast('📥 Import via file coming soon', 'info'); }
+function importProfile() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const p = JSON.parse(ev.target.result);
+        if (!p.name || !p.mode) throw new Error('Invalid');
+        p.id = 'imp-' + Date.now();
+        p.meta = 'Imported just now';
+        HP.state.profiles.unshift(p);
+        HP.ui.renderProfiles();
+        HP.ui.toast('📥 Profile imported: ' + p.name, 'success');
+      } catch(err) { HP.ui.toast('Invalid profile file', 'error'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function exportProfile(id) {
+  const p = HP.state.profiles.find(x => x.id === id);
+  if (!p) return;
+  const blob = new Blob([JSON.stringify(p, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = p.name.replace(/\s+/g, '-').toLowerCase() + '-hyperpulse.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  HP.ui.toast('↓ Profile exported', 'success');
+}
 
 // ---- COMMUNITY ----
 function filterCommunity(query) {
