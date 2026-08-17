@@ -3,505 +3,1036 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HYPERPULSE // Industrial Mobile Game Controller OS</title>
-  
-  <!-- Fonts -->
+  <title>Hyperpulse — Your Phone. Your Controller.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
-  
-  <!-- QR Code Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-industrial">
+<body>
 
-  <!-- Main Technical Header -->
-  <header class="cyber-header" id="mainHeader">
-    <div class="header-container">
-      <div class="logo-group" onclick="showSection('landing')">
-        <div class="logo-icon">HP</div>
-        <div class="logo-text">
-          <span class="brand-title">HYPER<span class="accent-text">PULSE</span></span>
-          <span class="brand-sub">INPUT SYSTEM / 001</span>
+<!-- ========== NAV ========== -->
+<nav class="site-nav" id="siteNav">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="navigate('landing')">
+      <div class="nav-logo-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg></div>
+      <span class="nav-logo-text">HYPERPULSE</span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a class="nav-link" onclick="scrollToSection('modes')">Modes</a>
+      <a class="nav-link" onclick="scrollToSection('how-it-works')">How It Works</a>
+      <a class="nav-link" onclick="scrollToSection('pairing')">Connect</a>
+      <a class="nav-link" onclick="navigate('community')">Community</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="navigate('auth')">Log In</button>
+      <button class="btn btn-accent" onclick="navigate('auth')">Get Started</button>
+      <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a onclick="scrollToSection('modes');toggleMobileNav()">Modes</a>
+  <a onclick="scrollToSection('how-it-works');toggleMobileNav()">How It Works</a>
+  <a onclick="navigate('auth');toggleMobileNav()">Log In</a>
+  <a onclick="navigate('auth');toggleMobileNav()" class="mobile-nav-cta">Get Started</a>
+</div>
+
+<!-- ========== LANDING PAGE ========== -->
+<div id="page-landing" class="page active">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><span class="badge-dot"></span> Now in Open Beta</div>
+      <h1 class="hero-title">
+        <span class="hero-line-1">YOUR PHONE.</span>
+        <span class="hero-line-2">YOUR CONTROLLER.</span>
+      </h1>
+      <p class="hero-sub">Turn your smartphone into a gamepad, racing wheel, mouse, keyboard, or motion controller — zero hardware required.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-accent btn-lg" onclick="navigate('auth')">Get Started →</button>
+        <button class="btn btn-outline btn-lg" onclick="scrollToSection('how-it-works')">See How It Works</button>
+      </div>
+      <div class="hero-compat">
+        <span class="compat-tag"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg> Windows</span>
+        <span class="compat-tag"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.523 15.341c-.343.9-.504 1.3-.943 2.096-.612 1.12-1.476 2.516-2.546 2.528-.953.011-1.198-.622-2.49-.615-1.29.007-1.56.628-2.515.617-1.068-.012-1.886-1.282-2.499-2.403-1.716-3.144-1.895-6.836-.837-8.795.755-1.386 1.946-2.198 3.072-2.198 1.144 0 1.863.627 2.808.627.92 0 1.48-.628 2.804-.628 1.003 0 2.066.547 2.821 1.491-2.479 1.358-2.078 4.902.325 5.28zm-3.638-9.503c.598-.727.997-1.748.84-2.838-1.016.07-2.204.716-2.896 1.553-.63.764-.984 1.767-.808 2.831 1.109.033 2.258-.6 2.864-1.546z"/></svg> iOS</span>
+        <span class="compat-tag"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.523 0c.189 0 .378.007.565.021L12 5.174 6.012 0.021C6.2 0.007 6.389 0 6.577 0h10.946zM5.145 0.75L0 11.25h4.5l5.5-10.5H5.145zm13.91 0H14.2l5.5 10.5H24L18.855.75zM0 12.75v1.5C0 20.673 5.373 24 12 24s12-3.327 12-9.75v-1.5H0zm8.25 3.75a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7.5 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/></svg> Android</span>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-screen-inner">
+            <div class="phone-mode-display" id="phoneModeDisplay">
+              <div class="phone-mode-icon">🎮</div>
+              <div class="phone-mode-label">GAMEPAD</div>
+            </div>
+            <div class="phone-mini-controller">
+              <div class="mini-stick left-stick"></div>
+              <div class="mini-dpad">
+                <div class="mini-dpad-h"></div>
+                <div class="mini-dpad-v"></div>
+              </div>
+              <div class="mini-face-btns">
+                <div class="mini-btn y">Y</div>
+                <div class="mini-btn x">X</div>
+                <div class="mini-btn b">B</div>
+                <div class="mini-btn a">A</div>
+              </div>
+              <div class="mini-stick right-stick"></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-home-bar"></div>
+      </div>
+      <!-- Floating labels -->
+      <div class="float-label fl-gamepad" onclick="navigate('dashboard');switchMode('gamepad')">🎮 GAMEPAD</div>
+      <div class="float-label fl-gyro" onclick="navigate('dashboard');switchMode('gyro')">🌀 GYRO</div>
+      <div class="float-label fl-racing" onclick="navigate('dashboard');switchMode('wheel')">🏎️ RACING</div>
+      <div class="float-label fl-mouse" onclick="navigate('dashboard');switchMode('mouse')">🖱️ MOUSE</div>
+      <div class="float-label fl-keyboard" onclick="navigate('dashboard');switchMode('keyboard')">⌨️ KEYBOARD</div>
+    </div>
+  </section>
+
+  <!-- CONTROLLER MODES -->
+  <section class="section" id="modes">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">CONTROLLER MODES</div>
+        <h2 class="section-title">One Phone. Five Controllers.</h2>
+        <p class="section-sub">Choose your playstyle. Switch modes instantly. No drivers, no lag.</p>
+      </div>
+      <div class="modes-grid">
+        <div class="mode-card" onclick="navigate('dashboard');switchMode('gamepad')">
+          <div class="mode-card-icon">🎮</div>
+          <h3>Gamepad</h3>
+          <p>Transform your phone into a traditional game controller with full button mapping.</p>
+          <ul class="mode-features">
+            <li>Dual analog sticks</li>
+            <li>D-pad + ABXY buttons</li>
+            <li>L1/R1/L2/R2 triggers</li>
+            <li>Haptic vibration</li>
+            <li>Button remapping</li>
+          </ul>
+          <button class="btn btn-mode">Try Gamepad →</button>
+        </div>
+        <div class="mode-card" onclick="navigate('dashboard');switchMode('wheel')">
+          <div class="mode-card-icon">🏎️</div>
+          <h3>Racing Wheel</h3>
+          <p>Tilt your phone left and right for gyroscope-based steering with full pedal controls.</p>
+          <ul class="mode-features">
+            <li>Gyroscope steering</li>
+            <li>Throttle & brake pedals</li>
+            <li>Handbrake + gear shift</li>
+            <li>Auto-centering</li>
+            <li>Sensitivity tuning</li>
+          </ul>
+          <button class="btn btn-mode">Try Racing →</button>
+        </div>
+        <div class="mode-card" onclick="navigate('dashboard');switchMode('gyro')">
+          <div class="mode-card-icon">🌀</div>
+          <h3>Gyroscope</h3>
+          <p>Use physical phone movement as a precision input device for aiming and motion control.</p>
+          <ul class="mode-features">
+            <li>3-axis motion control</li>
+            <li>Tilt-to-aim</li>
+            <li>Adjustable sensitivity</li>
+            <li>Axis inversion</li>
+            <li>Zero-point calibration</li>
+          </ul>
+          <button class="btn btn-mode">Try Motion →</button>
+        </div>
+        <div class="mode-card" onclick="navigate('dashboard');switchMode('mouse')">
+          <div class="mode-card-icon">🖱️</div>
+          <h3>Mouse</h3>
+          <p>Turn your phone into a wireless trackpad with full click and scroll support.</p>
+          <ul class="mode-features">
+            <li>Precision touchpad</li>
+            <li>Left / right / middle click</li>
+            <li>Two-finger scrolling</li>
+            <li>Drag and drop</li>
+            <li>DPI control</li>
+          </ul>
+          <button class="btn btn-mode">Try Mouse →</button>
+        </div>
+        <div class="mode-card" onclick="navigate('dashboard');switchMode('keyboard')">
+          <div class="mode-card-icon">⌨️</div>
+          <h3>Keyboard</h3>
+          <p>Use your phone as a wireless keyboard with WASD, function keys, and custom shortcuts.</p>
+          <ul class="mode-features">
+            <li>Full QWERTY layout</li>
+            <li>WASD gaming mode</li>
+            <li>Function key row</li>
+            <li>Custom shortcuts</li>
+            <li>Key remapping</li>
+          </ul>
+          <button class="btn btn-mode">Try Keyboard →</button>
+        </div>
+        <div class="mode-card mode-card-custom" onclick="navigate('dashboard');switchMode('custom')">
+          <div class="mode-card-icon">🎛️</div>
+          <h3>Custom Builder</h3>
+          <p>Drag, drop, and resize controls anywhere on your screen. Save unlimited profiles.</p>
+          <ul class="mode-features">
+            <li>Drag-and-drop editor</li>
+            <li>Add any control type</li>
+            <li>Save & load profiles</li>
+            <li>Share to community</li>
+            <li>Import game presets</li>
+          </ul>
+          <button class="btn btn-mode btn-accent-mode">Build Your Own →</button>
         </div>
       </div>
+    </div>
+  </section>
 
-      <nav class="nav-links">
-        <button class="nav-btn active" onclick="showSection('landing')">01 OVERVIEW</button>
-        <button class="nav-btn" onclick="showSection('modes')">02 MODES</button>
-        <button class="nav-btn" onclick="showSection('builder')">03 BUILDER</button>
-        <button class="nav-btn highlight-btn" onclick="openSessionModal()">⚡ SESSION HUB</button>
+  <!-- HOW IT WORKS -->
+  <section class="section section-dark" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">SETUP</div>
+        <h2 class="section-title">Up and running in 30 seconds.</h2>
+        <p class="section-sub">No apps to install on your PC. No drivers. Just open and play.</p>
+      </div>
+      <div class="steps-row">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">🔗</div>
+          <h3>Connect</h3>
+          <p>Connect your phone to your PC via Wi-Fi, Bluetooth, USB cable, or scan a QR code.</p>
+          <div class="step-tags">
+            <span>Wi-Fi</span><span>Bluetooth</span><span>USB</span><span>QR Code</span>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">🎮</div>
+          <h3>Choose Mode</h3>
+          <p>Select from Gamepad, Racing Wheel, Gyro, Mouse, Keyboard, or build a custom layout.</p>
+          <div class="step-tags">
+            <span>Gamepad</span><span>Racing</span><span>Gyro</span><span>Mouse</span><span>Custom</span>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">🚀</div>
+          <h3>Start Playing</h3>
+          <p>Your phone immediately becomes the selected controller. Sub-10ms latency over local network.</p>
+          <div class="step-tags">
+            <span>&lt;10ms</span><span>120Hz</span><span>Zero Drivers</span>
+          </div>
+        </div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">
+          <div class="flow-icon">📱</div>
+          <span>PHONE</span>
+        </div>
+        <div class="flow-line"><div class="flow-pulse"></div></div>
+        <div class="flow-node flow-node-accent">
+          <div class="flow-icon">⚡</div>
+          <span>HYPERPULSE</span>
+        </div>
+        <div class="flow-line"><div class="flow-pulse"></div></div>
+        <div class="flow-node">
+          <div class="flow-icon">💻</div>
+          <span>PC</span>
+        </div>
+        <div class="flow-line"><div class="flow-pulse"></div></div>
+        <div class="flow-node">
+          <div class="flow-icon">🎮</div>
+          <span>GAME</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVICE PAIRING PREVIEW -->
+  <section class="section" id="pairing">
+    <div class="container">
+      <div class="pairing-layout">
+        <div class="pairing-info">
+          <div class="section-eyebrow">INSTANT PAIRING</div>
+          <h2 class="section-title">Connect in one scan.</h2>
+          <p class="section-sub">Open Hyperpulse on your PC, scan the QR code with your phone, and you're connected. It's that fast.</p>
+          <div class="connection-status-card">
+            <div class="cs-row"><span class="cs-label">Status</span><span class="cs-value cs-connected"><span class="status-dot"></span> Connected</span></div>
+            <div class="cs-row"><span class="cs-label">Latency</span><span class="cs-value">8 ms</span></div>
+            <div class="cs-row"><span class="cs-label">Signal</span><span class="cs-value cs-success">Excellent</span></div>
+            <div class="cs-row"><span class="cs-label">Device</span><span class="cs-value">Mani's Phone</span></div>
+            <div class="cs-row"><span class="cs-label">Battery</span><span class="cs-value">74%</span></div>
+          </div>
+          <div class="pairing-actions">
+            <button class="btn btn-accent" onclick="navigate('auth')">Try It Now →</button>
+          </div>
+        </div>
+        <div class="pairing-visual">
+          <div class="qr-card">
+            <div class="qr-header">CONNECT YOUR DEVICE</div>
+            <div class="qr-mock">
+              <div class="qr-corner tl"></div>
+              <div class="qr-corner tr"></div>
+              <div class="qr-corner bl"></div>
+              <div class="qr-corner br"></div>
+              <div class="qr-grid" id="qrGrid"></div>
+              <div class="qr-scan-line" id="qrScanLine"></div>
+            </div>
+            <div class="qr-code-text">HYPER-4821</div>
+            <div class="qr-methods">
+              <button class="btn btn-ghost btn-sm">📶 Wi-Fi</button>
+              <button class="btn btn-ghost btn-sm">🔵 Bluetooth</button>
+              <button class="btn btn-ghost btn-sm">🔌 USB</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CTA -->
+  <section class="section section-cta">
+    <div class="container">
+      <div class="cta-block">
+        <div class="cta-glow"></div>
+        <div class="section-eyebrow">GET STARTED</div>
+        <h2 class="cta-title">Ready to turn your phone<br>into a controller?</h2>
+        <p class="cta-sub">Free to use. No hardware required. Works with any game.</p>
+        <div class="cta-buttons">
+          <button class="btn btn-accent btn-xl" onclick="navigate('auth')">Launch Hyperpulse →</button>
+          <button class="btn btn-outline btn-xl" onclick="scrollToSection('modes')">Explore Modes</button>
+        </div>
+        <div class="compat-row">
+          <span class="compat-pill"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg> Windows 10/11</span>
+          <span class="compat-pill"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.523 15.341c-.343.9-.504 1.3-.943 2.096-.612 1.12-1.476 2.516-2.546 2.528-.953.011-1.198-.622-2.49-.615-1.29.007-1.56.628-2.515.617-1.068-.012-1.886-1.282-2.499-2.403-1.716-3.144-1.895-6.836-.837-8.795.755-1.386 1.946-2.198 3.072-2.198 1.144 0 1.863.627 2.808.627.92 0 1.48-.628 2.804-.628 1.003 0 2.066.547 2.821 1.491-2.479 1.358-2.078 4.902.325 5.28zm-3.638-9.503c.598-.727.997-1.748.84-2.838-1.016.07-2.204.716-2.896 1.553-.63.764-.984 1.767-.808 2.831 1.109.033 2.258-.6 2.864-1.546z"/></svg> iOS 14+</span>
+          <span class="compat-pill"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.523 0c.189 0 .378.007.565.021L12 5.174 6.012 0.021C6.2 0.007 6.389 0 6.577 0h10.946zM5.145 0.75L0 11.25h4.5l5.5-10.5H5.145zm13.91 0H14.2l5.5 10.5H24L18.855.75zM0 12.75v1.5C0 20.673 5.373 24 12 24s12-3.327 12-9.75v-1.5H0zm8.25 3.75a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm7.5 0a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/></svg> Android 8+</span>
+          <span class="compat-pill">🌐 Web Browser</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <div class="nav-logo-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg></div>
+            <span class="nav-logo-text">HYPERPULSE</span>
+          </div>
+          <p>Your phone. Your controller.<br>One phone. Every way to play.</p>
+          <div class="footer-social">
+            <a href="#" class="social-link">𝕏</a>
+            <a href="#" class="social-link">in</a>
+            <a href="#" class="social-link">gh</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a onclick="navigate('dashboard');switchMode('gamepad')">Gamepad</a>
+          <a onclick="navigate('dashboard');switchMode('wheel')">Racing Wheel</a>
+          <a onclick="navigate('dashboard');switchMode('gyro')">Gyroscope</a>
+          <a onclick="navigate('dashboard');switchMode('mouse')">Mouse</a>
+          <a onclick="navigate('dashboard');switchMode('keyboard')">Keyboard</a>
+          <a onclick="navigate('dashboard');switchMode('custom')">Custom Controller</a>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <a onclick="navigate('help')">Documentation</a>
+          <a onclick="navigate('help')">Help Center</a>
+          <a onclick="navigate('help')">Troubleshooting</a>
+          <a onclick="navigate('community')">Community</a>
+          <a onclick="navigate('profiles')">Game Profiles</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Blog</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Hyperpulse. All rights reserved.</span>
+        <span class="footer-note">⚠️ Controller functionality requires the Hyperpulse desktop client. This website is the UI prototype.</span>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END LANDING -->
+
+<!-- ========== AUTH PAGE ========== -->
+<div id="page-auth" class="page">
+  <div class="auth-bg"></div>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo" onclick="navigate('landing')">
+        <div class="nav-logo-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg></div>
+        <span class="nav-logo-text">HYPERPULSE</span>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Log In</button>
+        <button class="auth-tab" id="tabSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+      <div id="authFormLogin">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="loginEmail">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-input" placeholder="••••••••" id="loginPassword">
+        </div>
+        <div class="form-row">
+          <label class="checkbox-label"><input type="checkbox" id="rememberMe"> Remember me</label>
+          <a class="form-link" href="#">Forgot password?</a>
+        </div>
+        <button class="btn btn-accent btn-full" onclick="doLogin()">Log In →</button>
+        <div class="auth-divider"><span>or</span></div>
+        <button class="btn btn-google btn-full" onclick="doLogin()">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <p class="auth-switch">Don't have an account? <a onclick="switchAuthTab('signup')">Sign up free</a></p>
+      </div>
+      <div id="authFormSignup" style="display:none;">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" class="form-input" placeholder="Your name" id="signupName">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" class="form-input" placeholder="you@example.com" id="signupEmail">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" class="form-input" placeholder="Create a password" id="signupPassword">
+        </div>
+        <button class="btn btn-accent btn-full" onclick="doSignup()">Create Account →</button>
+        <div class="auth-divider"><span>or</span></div>
+        <button class="btn btn-google btn-full" onclick="doSignup()">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Continue with Google
+        </button>
+        <p class="auth-switch">Already have an account? <a onclick="switchAuthTab('login')">Log in</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div id="page-dashboard" class="page">
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo" onclick="navigate('landing')">
+        <div class="nav-logo-icon sm"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg></div>
+        <span class="nav-logo-text">HYPERPULSE</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">MAIN</div>
+        <button class="sidebar-btn active" id="snav-dashboard" onclick="switchDashSection('dashboard')"><span class="snav-icon">⊞</span> Dashboard</button>
+        <div class="sidebar-section-label">CONTROLLERS</div>
+        <button class="sidebar-btn" id="snav-gamepad" onclick="switchDashSection('gamepad')"><span class="snav-icon">🎮</span> Gamepad</button>
+        <button class="sidebar-btn" id="snav-wheel" onclick="switchDashSection('wheel')"><span class="snav-icon">🏎️</span> Racing Wheel</button>
+        <button class="sidebar-btn" id="snav-gyro" onclick="switchDashSection('gyro')"><span class="snav-icon">🌀</span> Gyroscope</button>
+        <button class="sidebar-btn" id="snav-mouse" onclick="switchDashSection('mouse')"><span class="snav-icon">🖱️</span> Mouse</button>
+        <button class="sidebar-btn" id="snav-keyboard" onclick="switchDashSection('keyboard')"><span class="snav-icon">⌨️</span> Keyboard</button>
+        <button class="sidebar-btn" id="snav-custom" onclick="switchDashSection('custom')"><span class="snav-icon">🎛️</span> Custom Builder</button>
+        <div class="sidebar-section-label">LIBRARY</div>
+        <button class="sidebar-btn" id="snav-profiles" onclick="switchDashSection('profiles')"><span class="snav-icon">📁</span> Game Profiles</button>
+        <button class="sidebar-btn" id="snav-community" onclick="switchDashSection('community')"><span class="snav-icon">🌐</span> Community</button>
+        <button class="sidebar-btn" id="snav-multiplayer" onclick="switchDashSection('multiplayer')"><span class="snav-icon">👥</span> Multiplayer</button>
+        <div class="sidebar-section-label">SYSTEM</div>
+        <button class="sidebar-btn" id="snav-performance" onclick="switchDashSection('performance')"><span class="snav-icon">📊</span> Performance</button>
+        <button class="sidebar-btn" id="snav-settings" onclick="switchDashSection('settings')"><span class="snav-icon">⚙️</span> Settings</button>
+        <button class="sidebar-btn" id="snav-help" onclick="switchDashSection('help')"><span class="snav-icon">❓</span> Help</button>
       </nav>
-
-      <div class="header-controls">
-        <button class="icon-toggle" id="audioToggleBtn" title="Toggle Audio" onclick="toggleAudio()">
-          <span class="icon">🔊</span>
-        </button>
-        <button class="cyber-button sm primary" onclick="toggleMobileSimulator()">
-          📱 PHONE SIMULATOR
-        </button>
+      <div class="sidebar-device-card" id="sidebarDevice">
+        <div class="sdc-top">
+          <span class="sdc-dot connected"></span>
+          <span class="sdc-name" id="sdcName">No Device</span>
+        </div>
+        <div class="sdc-stats">
+          <span id="sdcLatency">-- ms</span>
+          <span id="sdcBattery">--%</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="switchDashSection('multiplayer')">+ Connect</button>
       </div>
-    </div>
-  </header>
+    </aside>
 
-  <!-- Notification Banner / Toast -->
-  <div id="toastContainer" class="toast-container"></div>
-
-  <!-- MAIN APP CONTAINER -->
-  <main id="appContainer">
-
-    <!-- SECTION 1: EDITORIAL LANDING PAGE -->
-    <section id="landingSection" class="app-section active">
-      <!-- Hero Section -->
-      <div class="hero-wrapper">
-        <div class="hero-content">
-          <div class="hero-meta-bar">
-            <span>SYS / 001</span>
-            <span>REALTIME WIRED & P2P</span>
-            <span>REF: HP-2026</span>
+    <!-- Main Content -->
+    <main class="dash-main">
+      <header class="dash-topbar">
+        <div class="dash-breadcrumb">
+          <span id="dashBreadcrumb">Dashboard</span>
+        </div>
+        <div class="dash-topbar-right">
+          <div class="device-pill" id="devicePill">
+            <span class="status-dot" id="deviceDot"></span>
+            <span id="devicePillLabel">Not Connected</span>
           </div>
+          <div class="user-avatar" onclick="toggleUserMenu()" id="userAvatar">
+            <span id="userAvatarInitial">?</span>
+          </div>
+          <div class="user-menu" id="userMenu">
+            <div class="user-menu-name" id="userMenuName">Guest</div>
+            <a onclick="switchDashSection('settings')">Settings</a>
+            <a onclick="navigate('landing')">Back to Home</a>
+            <a onclick="doLogout()">Log Out</a>
+          </div>
+          <button class="sidebar-toggle-btn" onclick="toggleSidebar()">☰</button>
+        </div>
+      </header>
 
-          <h1 class="hero-title">
-            YOUR<br>
-            PHONE<br>
-            BECOMES<br>
-            THE<br>
-            <span class="accent-text">MACHINE.</span>
-          </h1>
-
-          <p class="hero-subtitle">
-            Transform any smartphone into an ultra-low latency (<0.5ms) wired USB or wireless PC controller, Logitech G29 racing wheel, 3-axis gyro aim device, or precision trackpad mouse.
-          </p>
-
-          <!-- Transport Quick Select -->
-          <div class="transport-selector-card">
-            <div class="transport-title">TRANSPORT PROTOCOL // SELECT METHOD</div>
-            <div class="transport-grid">
-              <div class="transport-option active" id="modeUsbOption" onclick="selectTransportMode('usb')">
-                <div class="transport-icon">⚡</div>
-                <div class="transport-info">
-                  <div class="name">USB TYPE-C</div>
-                  <div class="desc">&lt; 0.5 ms Wired</div>
-                </div>
-                <span class="badge-tag">RAW USB</span>
-              </div>
-              <div class="transport-option" id="modeWifiOption" onclick="selectTransportMode('wifi')">
-                <div class="transport-icon">📶</div>
-                <div class="transport-info">
-                  <div class="name">WI-FI P2P</div>
-                  <div class="desc">1.8 ms QR Link</div>
-                </div>
-              </div>
-              <div class="transport-option" id="modeLocalOption" onclick="selectTransportMode('local')">
-                <div class="transport-icon">🔗</div>
-                <div class="transport-info">
-                  <div class="name">LOCAL SYNC</div>
-                  <div class="desc">Dual-Window Test</div>
-                </div>
-              </div>
+      <!-- DASHBOARD HOME -->
+      <div class="dash-section active" id="ds-dashboard">
+        <div class="dash-section-header">
+          <h2>Dashboard</h2>
+          <button class="btn btn-accent btn-sm" onclick="openConnectModal()">+ Connect Device</button>
+        </div>
+        <div class="stat-cards">
+          <div class="stat-card">
+            <div class="stat-label">LATENCY</div>
+            <div class="stat-value" id="statLatency">-- ms</div>
+            <div class="stat-sub">Round-trip</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">CONNECTION</div>
+            <div class="stat-value" id="statConn">Offline</div>
+            <div class="stat-sub" id="statConnType">No transport</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">INPUT RATE</div>
+            <div class="stat-value" id="statInputRate">-- Hz</div>
+            <div class="stat-sub">Polling rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">BATTERY</div>
+            <div class="stat-value" id="statBattery">--%</div>
+            <div class="stat-sub" id="statBattSub">Device battery</div>
+          </div>
+        </div>
+        <div class="dash-two-col">
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Quick Switch</h3></div>
+            <div class="quick-modes">
+              <button class="quick-mode-btn" onclick="switchDashSection('gamepad')"><span>🎮</span>Gamepad</button>
+              <button class="quick-mode-btn" onclick="switchDashSection('wheel')"><span>🏎️</span>Racing</button>
+              <button class="quick-mode-btn" onclick="switchDashSection('gyro')"><span>🌀</span>Gyro</button>
+              <button class="quick-mode-btn" onclick="switchDashSection('mouse')"><span>🖱️</span>Mouse</button>
+              <button class="quick-mode-btn" onclick="switchDashSection('keyboard')"><span>⌨️</span>Keyboard</button>
+              <button class="quick-mode-btn" onclick="switchDashSection('custom')"><span>🎛️</span>Custom</button>
             </div>
           </div>
-
-          <div class="hero-actions">
-            <button class="cyber-button lg primary" onclick="startHostSession()">
-              [ CREATE HOST SESSION ↗ ]
-            </button>
-            <button class="cyber-button lg secondary" onclick="openJoinModal()">
-              [ JOIN AS CONTROLLER ]
-            </button>
-          </div>
-
-          <!-- Quick Metrics Bar -->
-          <div class="hero-metrics">
-            <div class="metric-item">
-              <span class="label">POLLING RATE</span>
-              <span class="value">1000 HZ</span>
-            </div>
-            <div class="metric-item">
-              <span class="label">MIN LATENCY</span>
-              <span class="value">&lt; 0.4 MS</span>
-            </div>
-            <div class="metric-item">
-              <span class="label">HARDWARE DRIVERS</span>
-              <span class="value">ZERO INSTALL</span>
+          <div class="dash-card">
+            <div class="dash-card-header"><h3>Recent Profiles</h3><button class="btn btn-ghost btn-sm" onclick="switchDashSection('profiles')">View All</button></div>
+            <div class="recent-profiles" id="recentProfiles">
+              <div class="profile-row"><span class="profile-icon">🎮</span><div><div class="profile-name">GTA V — Gamepad</div><div class="profile-meta">Used 2h ago</div></div><button class="btn btn-ghost btn-xs" onclick="loadProfile('gta')">Load</button></div>
+              <div class="profile-row"><span class="profile-icon">🏎️</span><div><div class="profile-name">Forza — Racing Wheel</div><div class="profile-meta">Used yesterday</div></div><button class="btn btn-ghost btn-xs" onclick="loadProfile('forza')">Load</button></div>
+              <div class="profile-row"><span class="profile-icon">🌀</span><div><div class="profile-name">Valorant — Gyro Aim</div><div class="profile-meta">Used 3d ago</div></div><button class="btn btn-ghost btn-xs" onclick="loadProfile('val')">Load</button></div>
             </div>
           </div>
         </div>
-
-        <!-- Hero Technical Diagram Phone Visual -->
-        <div class="hero-visual">
-          <div class="phone-frame-3d">
-            <div class="phone-screen-content">
-              <div class="mini-wheel-canvas-wrap">
-                <canvas id="heroWheelCanvas" width="280" height="280"></canvas>
-              </div>
-              <div class="hud-readout">
-                <div class="speed-val">248 KM/H</div>
-                <div class="gear-val">GEAR 5 // REV 8200 RPM</div>
-              </div>
-            </div>
+        <div class="dash-card" style="margin-top:20px;">
+          <div class="dash-card-header"><h3>Connected Devices</h3><button class="btn btn-accent btn-sm" onclick="openConnectModal()">+ Add Device</button></div>
+          <div class="devices-list" id="devicesList">
+            <div class="device-row empty-state">No devices connected. <a onclick="openConnectModal()">Connect now →</a></div>
           </div>
         </div>
       </div>
 
-      <!-- How It Works Section -->
-      <div class="section-container">
-        <h2 class="section-title">SYSTEM WORKFLOW</h2>
-        <p class="section-sub">4-STEP HIGH-PRECISION INITIALIZATION</p>
-
-        <div class="steps-grid">
-          <div class="step-card">
-            <div class="step-num">01</div>
-            <h3>CREATE SESSION</h3>
-            <p>Launch host telemetry dashboard to generate raw USB tethering address or QR pairing code.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">02</div>
-            <h3>PAIR HARDWARE</h3>
-            <p>Plug in a USB Type-C cable or scan the QR code to lock sub-millisecond data channels.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">03</div>
-            <h3>SELECT MODE</h3>
-            <p>Deploy Gamepad, G29 Racing Wheel, 3-Axis Gyro Aim, Mouse Trackpad, or Custom Layout.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">04</div>
-            <h3>UNLEASH DOMINANCE</h3>
-            <p>Execute zero-lag input polling with Web Audio feedback and hardware telemetry synchronization.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Feature Showcase Grid -->
-      <div class="section-container">
-        <h2 class="section-title">FIVE CONTROLLER MODES</h2>
-        <p class="section-sub">INDUSTRIAL SENSOR & TELEMETRY SUBSYSTEMS</p>
-
-        <div class="modes-showcase-grid">
-          <!-- Gamepad Showcase -->
-          <div class="mode-card" onclick="openModeDirect('gamepad')">
-            <div class="mode-header">
-              <span class="mode-icon">🎮</span>
-              <span class="mode-tag">INPUT / 01</span>
-            </div>
-            <h3>FULL VIRTUAL GAMEPAD</h3>
-            <p>Dual analog thumbsticks, D-Pad, face buttons (A/B/X/Y), pressure L2/R2 triggers, bumpers, and tactile haptics.</p>
-            <button class="cyber-button sm secondary">LAUNCH GAMEPAD →</button>
-          </div>
-
-          <!-- Racing Wheel Showcase -->
-          <div class="mode-card" onclick="openModeDirect('wheel')">
-            <div class="mode-header">
-              <span class="mode-icon">🏎️</span>
-              <span class="mode-tag">INPUT / 02</span>
-            </div>
-            <h3>LOGITECH G29 RACING WHEEL</h3>
-            <p>900° virtual tilt steering wheel, LED RPM shift light bar, digital telemetry cockpit, paddle shifters, throttle, brake & clutch pedals.</p>
-            <button class="cyber-button sm primary">ENTER COCKPIT →</button>
-          </div>
-
-          <!-- Gyro Showcase -->
-          <div class="mode-card" onclick="openModeDirect('gyro')">
-            <div class="mode-header">
-              <span class="mode-icon">🧭</span>
-              <span class="mode-tag">INPUT / 03</span>
-            </div>
-            <h3>GYROSCOPE MOTION AIM</h3>
-            <p>Physical 3-axis motion aiming (Pitch/Roll/Yaw) with artificial horizon visualization and zero calibration.</p>
-            <button class="cyber-button sm secondary">CALIBRATE GYRO →</button>
-          </div>
-
-          <!-- Mouse Showcase -->
-          <div class="mode-card" onclick="openModeDirect('mouse')">
-            <div class="mode-header">
-              <span class="mode-icon">🖱️</span>
-              <span class="mode-tag">INPUT / 04</span>
-            </div>
-            <h3>TOUCH TRACKPAD MOUSE</h3>
-            <p>Precision multi-touch touchpad with scroll zone, mechanical clicks, and DPI scale controls.</p>
-            <button class="cyber-button sm secondary">OPEN TRACKPAD →</button>
-          </div>
-
-          <!-- Builder Showcase -->
-          <div class="mode-card wide-card" onclick="showSection('builder')">
-            <div class="mode-header">
-              <span class="mode-icon">🛠️</span>
-              <span class="mode-tag">INPUT / 05</span>
-            </div>
-            <h3>CUSTOM CONTROLLER BUILDER</h3>
-            <p>Drag, resize, recolor, and map buttons anywhere on your custom canvas. Save and swap layouts for FPS, Flight, Racing, and Emulators.</p>
-            <button class="cyber-button sm secondary">BUILD LAYOUT →</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 2: HOST DASHBOARD & INPUT TELEMETRY -->
-    <section id="hostDashboardSection" class="app-section">
-      <div class="dashboard-header">
-        <div>
-          <span class="brand-sub">HOST TELEMETRY SYSTEM</span>
-          <h2 class="dash-code-title">SESSION: <span id="dashSessionCode">HYPER-8921</span></h2>
-        </div>
-        <div class="dash-metrics">
-          <div class="metric-pill">
-            <span>TRANSPORT:</span>
-            <span id="dashTransportType">⚡ USB CABLE</span>
-          </div>
-          <div class="metric-pill">
-            <span>LATENCY:</span>
-            <span id="dashLatencyVal">0.4 MS</span>
-          </div>
-          <div class="metric-pill">
-            <span>POLLING:</span>
-            <span id="dashPollingVal">1000 HZ</span>
-          </div>
-          <button class="cyber-button sm danger" onclick="endHostSession()">DISCONNECT</button>
-        </div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Connection Hub & Pairing Panel -->
-        <div class="dash-card">
-          <h3>LINK & PAIRING HUB</h3>
-          <div class="qr-box">
-            <div id="dashboardQrCode"></div>
-          </div>
-          <div class="big-code" id="dashBigCode">8921</div>
-          <div class="pairing-methods">
-            <button class="cyber-button sm secondary" onclick="connectUsbDeviceHost()">⚡ PAIR USB CABLE</button>
-            <button class="cyber-button sm secondary" onclick="copySessionLink()">📋 COPY MOBILE LINK</button>
-            <button class="cyber-button sm primary" onclick="toggleMobileSimulator()">📱 PHONE SIMULATOR</button>
-          </div>
-        </div>
-
-        <!-- Live Telemetry Monitor -->
-        <div class="dash-card">
-          <h3>LIVE INPUT TELEMETRY MONITOR</h3>
-          <div class="telemetry-grid">
-            <div class="tele-box">
-              <div class="box-title">BUTTON STATES</div>
-              <div class="buttons-state-grid" id="teleButtonsGrid">
-                <span class="btn-chip" id="chip-A">A</span>
-                <span class="btn-chip" id="chip-B">B</span>
-                <span class="btn-chip" id="chip-X">X</span>
-                <span class="btn-chip" id="chip-Y">Y</span>
-                <span class="btn-chip" id="chip-L1">L1</span>
-                <span class="btn-chip" id="chip-R1">R1</span>
-                <span class="btn-chip" id="chip-L2">L2</span>
-                <span class="btn-chip" id="chip-R2">R2</span>
-                <span class="btn-chip" id="chip-START">START</span>
-                <span class="btn-chip" id="chip-SELECT">SELECT</span>
+      <!-- GAMEPAD SECTION -->
+      <div class="dash-section" id="ds-gamepad">
+        <div class="dash-section-header"><h2>Gamepad Controller</h2><div class="mode-status-pill"><span class="status-dot active"></span>Input Active</div></div>
+        <div class="gamepad-layout">
+          <div class="gamepad-body">
+            <div class="gp-top-row">
+              <div class="gp-triggers-left">
+                <button class="trigger-btn" id="btnL2" ontouchstart="pressBtn('L2',true)" ontouchend="pressBtn('L2',false)" onmousedown="pressBtn('L2',true)" onmouseup="pressBtn('L2',false)">L2</button>
+                <button class="bumper-btn" id="btnL1" ontouchstart="pressBtn('L1',true)" ontouchend="pressBtn('L1',false)" onmousedown="pressBtn('L1',true)" onmouseup="pressBtn('L1',false)">L1</button>
+              </div>
+              <div class="gp-center-top">
+                <button class="center-btn" id="btnSelect" ontouchstart="pressBtn('SELECT',true)" ontouchend="pressBtn('SELECT',false)" onmousedown="pressBtn('SELECT',true)" onmouseup="pressBtn('SELECT',false)">≡</button>
+                <button class="home-btn" id="btnHome" ontouchstart="pressBtn('HOME',true)" ontouchend="pressBtn('HOME',false)" onmousedown="pressBtn('HOME',true)" onmouseup="pressBtn('HOME',false)"><svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg></button>
+                <button class="center-btn" id="btnStart" ontouchstart="pressBtn('START',true)" ontouchend="pressBtn('START',false)" onmousedown="pressBtn('START',true)" onmouseup="pressBtn('START',false)">▶</button>
+              </div>
+              <div class="gp-triggers-right">
+                <button class="bumper-btn" id="btnR1" ontouchstart="pressBtn('R1',true)" ontouchend="pressBtn('R1',false)" onmousedown="pressBtn('R1',true)" onmouseup="pressBtn('R1',false)">R1</button>
+                <button class="trigger-btn" id="btnR2" ontouchstart="pressBtn('R2',true)" ontouchend="pressBtn('R2',false)" onmousedown="pressBtn('R2',true)" onmouseup="pressBtn('R2',false)">R2</button>
               </div>
             </div>
-
-            <div class="tele-box">
-              <div class="box-title">ANALOG AXES</div>
-              <div id="teleStickL">LX: 0.00 | LY: 0.00</div>
-              <div id="teleStickR">RX: 0.00 | RY: 0.00</div>
-            </div>
-
-            <div class="tele-box">
-              <div class="box-title">RACING WHEEL</div>
-              <div>STEERING: <span id="teleWheelAngle">0°</span></div>
-            </div>
-
-            <div class="tele-box">
-              <div class="box-title">GYRO ORIENTATION</div>
-              <div>PITCH: <span id="telePitch">0.0°</span> | ROLL: <span id="teleRoll">0.0°</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: CONTROLLER MODES SELECTION & VIEW -->
-    <section id="modesSection" class="app-section">
-      <div class="mode-navigation-bar">
-        <button class="mode-nav-btn active" id="tabGamepadBtn" onclick="switchControllerTab('gamepad')">🎮 GAMEPAD</button>
-        <button class="mode-nav-btn" id="tabWheelBtn" onclick="switchControllerTab('wheel')">🏎️ RACING WHEEL</button>
-        <button class="mode-nav-btn" id="tabGyroBtn" onclick="switchControllerTab('gyro')">🧭 GYROSCOPE</button>
-        <button class="mode-nav-btn" id="tabMouseBtn" onclick="switchControllerTab('mouse')">🖱️ TOUCH MOUSE</button>
-      </div>
-
-      <!-- TAB 1: VIRTUAL GAMEPAD -->
-      <div id="tabGamepad" class="controller-tab-content active">
-        <div class="gamepad-ui-frame">
-          <div class="gamepad-top-bar">
-            <span>HYPERPULSE // GAMEPAD HARDWARE</span>
-            <div>
-              <button class="cyber-button sm secondary" id="btnSelect" onmousedown="handleButtonPress('SELECT', true)" onmouseup="handleButtonPress('SELECT', false)" ontouchstart="handleButtonPress('SELECT', true)" ontouchend="handleButtonPress('SELECT', false)">SELECT</button>
-              <button class="cyber-button sm primary" id="btnStart" onmousedown="handleButtonPress('START', true)" onmouseup="handleButtonPress('START', false)" ontouchstart="handleButtonPress('START', true)" ontouchend="handleButtonPress('START', false)">START</button>
-            </div>
-          </div>
-
-          <div class="gamepad-main-body">
-            <div class="gamepad-side">
-              <div class="bumpers-group">
-                <button class="bumper-btn" id="btnL1" onmousedown="handleButtonPress('L1', true)" onmouseup="handleButtonPress('L1', false)" ontouchstart="handleButtonPress('L1', true)" ontouchend="handleButtonPress('L1', false)">L1</button>
-              </div>
-
-              <div class="dpad-container">
-                <button class="dpad-btn up" onmousedown="handleButtonPress('DPAD_UP', true)" onmouseup="handleButtonPress('DPAD_UP', false)" ontouchstart="handleButtonPress('DPAD_UP', true)" ontouchend="handleButtonPress('DPAD_UP', false)">▲</button>
-                <button class="dpad-btn left" onmousedown="handleButtonPress('DPAD_LEFT', true)" onmouseup="handleButtonPress('DPAD_LEFT', false)" ontouchstart="handleButtonPress('DPAD_LEFT', true)" ontouchend="handleButtonPress('DPAD_LEFT', false)">◀</button>
-                <div class="dpad-center"></div>
-                <button class="dpad-btn right" onmousedown="handleButtonPress('DPAD_RIGHT', true)" onmouseup="handleButtonPress('DPAD_RIGHT', false)" ontouchstart="handleButtonPress('DPAD_RIGHT', true)" ontouchend="handleButtonPress('DPAD_RIGHT', false)">▶</button>
-                <button class="dpad-btn down" onmousedown="handleButtonPress('DPAD_DOWN', true)" onmouseup="handleButtonPress('DPAD_DOWN', false)" ontouchstart="handleButtonPress('DPAD_DOWN', true)" ontouchend="handleButtonPress('DPAD_DOWN', false)">▼</button>
-              </div>
-
-              <div class="touch-stick-base" id="leftStickBase">
-                <div class="touch-stick-thumb" id="leftStickThumb"></div>
-              </div>
-            </div>
-
-            <div class="gamepad-side">
-              <div class="bumpers-group">
-                <button class="bumper-btn" id="btnR1" onmousedown="handleButtonPress('R1', true)" onmouseup="handleButtonPress('R1', false)" ontouchstart="handleButtonPress('R1', true)" ontouchend="handleButtonPress('R1', false)">R1</button>
-              </div>
-
-              <div class="face-buttons-container">
-                <button class="face-btn btn-y" onmousedown="handleButtonPress('Y', true)" onmouseup="handleButtonPress('Y', false)" ontouchstart="handleButtonPress('Y', true)" ontouchend="handleButtonPress('Y', false)">Y</button>
-                <button class="face-btn btn-x" onmousedown="handleButtonPress('X', true)" onmouseup="handleButtonPress('X', false)" ontouchstart="handleButtonPress('X', true)" ontouchend="handleButtonPress('X', false)">X</button>
-                <button class="face-btn btn-b" onmousedown="handleButtonPress('B', true)" onmouseup="handleButtonPress('B', false)" ontouchstart="handleButtonPress('B', true)" ontouchend="handleButtonPress('B', false)">B</button>
-                <button class="face-btn btn-a" onmousedown="handleButtonPress('A', true)" onmouseup="handleButtonPress('A', false)" ontouchstart="handleButtonPress('A', true)" ontouchend="handleButtonPress('A', false)">A</button>
-              </div>
-
-              <div class="touch-stick-base" id="rightStickBase">
-                <div class="touch-stick-thumb" id="rightStickThumb"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 2: LOGITECH G29 RACING WHEEL -->
-      <div id="tabWheel" class="controller-tab-content">
-        <div class="cockpit-container">
-          <div class="rpm-shift-bar" id="rpmBar">
-            <div class="led green"></div><div class="led green"></div><div class="led green"></div>
-            <div class="led yellow"></div><div class="led yellow"></div><div class="led yellow"></div>
-            <div class="led red"></div><div class="led red"></div>
-          </div>
-
-          <div class="cockpit-layout">
-            <div class="cockpit-side">
-              <div class="speedo-box"><span id="cockpitSpeed">184</span> KM/H</div>
-              <div>GEAR: <span id="cockpitGear">4</span></div>
-              <button class="cyber-button sm secondary" onclick="shiftGear(-1)">SHIFT DOWN [-]</button>
-              <button class="cyber-button sm primary" onclick="shiftGear(1)">SHIFT UP [+]</button>
-            </div>
-
-            <div class="cockpit-center">
-              <div class="paddle-shifter" onclick="shiftGear(-1)">-</div>
-              <div class="steering-wheel-wrapper">
-                <canvas id="wheelCanvas" width="360" height="360"></canvas>
-                <div style="text-align:center; font-family:var(--font-mono); font-size:1.2rem; color:#fff;">
-                  ANGLE: <span id="wheelAngleText">0°</span>
+            <div class="gp-bottom-row">
+              <div class="gp-left">
+                <div class="joystick-base" id="leftStickBase"><div class="joystick-thumb" id="leftStickThumb"></div></div>
+                <div class="dpad">
+                  <button class="dpad-btn dpad-up" ontouchstart="pressBtn('UP',true)" ontouchend="pressBtn('UP',false)" onmousedown="pressBtn('UP',true)" onmouseup="pressBtn('UP',false)">▲</button>
+                  <button class="dpad-btn dpad-left" ontouchstart="pressBtn('LEFT',true)" ontouchend="pressBtn('LEFT',false)" onmousedown="pressBtn('LEFT',true)" onmouseup="pressBtn('LEFT',false)">◀</button>
+                  <div class="dpad-center"></div>
+                  <button class="dpad-btn dpad-right" ontouchstart="pressBtn('RIGHT',true)" ontouchend="pressBtn('RIGHT',false)" onmousedown="pressBtn('RIGHT',true)" onmouseup="pressBtn('RIGHT',false)">▶</button>
+                  <button class="dpad-btn dpad-down" ontouchstart="pressBtn('DOWN',true)" ontouchend="pressBtn('DOWN',false)" onmousedown="pressBtn('DOWN',true)" onmouseup="pressBtn('DOWN',false)">▼</button>
                 </div>
               </div>
-              <div class="paddle-shifter" onclick="shiftGear(1)">+</div>
-            </div>
-
-            <div class="cockpit-side">
-              <div class="pedal-control">
-                <span>THROTTLE</span>
-                <input type="range" class="pedal-slider" min="0" max="100" value="0" oninput="handlePedalInput('throttle', this.value)">
-              </div>
-              <div class="pedal-control">
-                <span>BRAKE</span>
-                <input type="range" class="pedal-slider" min="0" max="100" value="0" oninput="handlePedalInput('brake', this.value)">
+              <div class="gp-right">
+                <div class="face-buttons">
+                  <button class="face-btn fb-y" id="btnY" ontouchstart="pressBtn('Y',true)" ontouchend="pressBtn('Y',false)" onmousedown="pressBtn('Y',true)" onmouseup="pressBtn('Y',false)">Y</button>
+                  <button class="face-btn fb-x" id="btnX" ontouchstart="pressBtn('X',true)" ontouchend="pressBtn('X',false)" onmousedown="pressBtn('X',true)" onmouseup="pressBtn('X',false)">X</button>
+                  <button class="face-btn fb-b" id="btnB" ontouchstart="pressBtn('B',true)" ontouchend="pressBtn('B',false)" onmousedown="pressBtn('B',true)" onmouseup="pressBtn('B',false)">B</button>
+                  <button class="face-btn fb-a" id="btnA" ontouchstart="pressBtn('A',true)" ontouchend="pressBtn('A',false)" onmousedown="pressBtn('A',true)" onmouseup="pressBtn('A',false)">A</button>
+                </div>
+                <div class="joystick-base" id="rightStickBase"><div class="joystick-thumb" id="rightStickThumb"></div></div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- TAB 3: GYROSCOPE MOTION CONTROL -->
-      <div id="tabGyro" class="controller-tab-content">
-        <div class="gamepad-ui-frame">
-          <h3>🧭 GYROSCOPE 3D MOTION AIM & STEERING</h3>
-          <button class="cyber-button sm primary" onclick="calibrateGyroZero()">🎯 CALIBRATE ZERO</button>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:20px;">
-            <canvas id="horizonCanvas" width="400" height="300" style="border:1px solid var(--dark-border); background:#000;"></canvas>
-            <div>
-              <div>PITCH: <span id="gyroPitchVal">0.0°</span></div>
-              <div>ROLL: <span id="gyroRollVal">0.0°</span></div>
-              <div>YAW: <span id="gyroYawVal">0.0°</span></div>
-              <button class="cyber-button sm secondary" onclick="requestMotionPermission()" style="margin-top:20px;">PERMIT MOTION SENSORS</button>
+          <div class="input-debug-panel">
+            <div class="debug-title">LIVE INPUT MONITOR</div>
+            <div class="debug-grid">
+              <div class="debug-row"><span>Left Stick</span><span id="dbgLS">X: 0.00  Y: 0.00</span></div>
+              <div class="debug-row"><span>Right Stick</span><span id="dbgRS">X: 0.00  Y: 0.00</span></div>
+              <div class="debug-row"><span>L2 / R2</span><span id="dbgTriggers">0% / 0%</span></div>
+              <div class="debug-row"><span>Buttons</span><span id="dbgBtns">—</span></div>
+              <div class="debug-row"><span>D-Pad</span><span id="dbgDpad">—</span></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 4: WIRELESS TOUCH MOUSE -->
-      <div id="tabMouse" class="controller-tab-content">
-        <div class="gamepad-ui-frame">
-          <h3>🖱️ WIRELESS TRACKPAD & MOUSE</h3>
-          <div id="touchpadSurface" style="width:100%; height:320px; border:2px solid var(--dark-border); background:#111; margin:20px 0; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono);">
-            SLIDE TO MOVE CURSOR // 2-FINGER DRAG TO SCROLL
+      <!-- RACING WHEEL SECTION -->
+      <div class="dash-section" id="ds-wheel">
+        <div class="dash-section-header"><h2>Racing Wheel</h2><div class="mode-status-pill"><span id="gyroActiveDot" class="status-dot"></span><span id="gyroActiveLabel">Gyro Off</span></div></div>
+        <div class="wheel-layout">
+          <div class="wheel-left-panel">
+            <div class="cockpit-stat"><span class="cs-label">SPEED</span><div class="cockpit-speed" id="cockpitSpeed">0</div><span>KM/H</span></div>
+            <div class="cockpit-stat"><span class="cs-label">GEAR</span><div class="cockpit-gear" id="cockpitGear">N</div></div>
+            <div class="gear-btns">
+              <button class="btn btn-outline" onclick="shiftGear(-1)">▼ Down</button>
+              <button class="btn btn-accent" onclick="shiftGear(1)">▲ Up</button>
+            </div>
+            <button class="btn btn-outline btn-full" style="margin-top:10px;background:#ff4444;border-color:#ff4444;color:#fff;" id="handbrakeBtn" ontouchstart="pressBtn('HANDBRAKE',true)" ontouchend="pressBtn('HANDBRAKE',false)" onmousedown="pressBtn('HANDBRAKE',true)" onmouseup="pressBtn('HANDBRAKE',false)">🔴 HANDBRAKE</button>
           </div>
-          <div style="display:flex; gap:10px;">
-            <button class="cyber-button md secondary" style="flex:1;" onmousedown="handleMouseClick('left', true)" onmouseup="handleMouseClick('left', false)">LEFT CLICK</button>
-            <button class="cyber-button md secondary" style="flex:1;" onmousedown="handleMouseClick('right', true)" onmouseup="handleMouseClick('right', false)">RIGHT CLICK</button>
+          <div class="wheel-center">
+            <div class="wheel-gyro-badge" id="wheelGyroBadge">🌀 GYRO ACTIVE</div>
+            <canvas id="wheelCanvas" width="320" height="320"></canvas>
+            <div class="wheel-angle-display">Steering: <span id="wheelAngleTxt">0°</span></div>
+            <button class="btn btn-ghost btn-sm" onclick="calibrateGyroZero()">⊕ Calibrate Center</button>
+          </div>
+          <div class="wheel-right-panel">
+            <div class="pedal-group">
+              <div class="pedal-label">THROTTLE <span id="throttleVal">0%</span></div>
+              <div class="pedal-track"><div class="pedal-fill throttle-fill" id="throttleFill" style="height:0%"></div></div>
+              <input type="range" class="pedal-slider" min="0" max="100" value="0" id="throttleSlider" oninput="handlePedal('throttle',this.value)">
+            </div>
+            <div class="pedal-group">
+              <div class="pedal-label">BRAKE <span id="brakeVal">0%</span></div>
+              <div class="pedal-track"><div class="pedal-fill brake-fill" id="brakeFill" style="height:0%"></div></div>
+              <input type="range" class="pedal-slider" min="0" max="100" value="0" id="brakeSlider" oninput="handlePedal('brake',this.value)">
+            </div>
+          </div>
+        </div>
+        <div class="wheel-settings-row">
+          <div class="ws-group"><label>Sensitivity <span id="wheelSensVal">72%</span></label><input type="range" min="1" max="100" value="72" oninput="HP.settings.wheelSens=this.value;document.getElementById('wheelSensVal').textContent=this.value+'%'"></div>
+          <div class="ws-group"><label>Dead Zone <span id="wheelDzVal">4%</span></label><input type="range" min="0" max="30" value="4" oninput="HP.settings.wheelDz=this.value;document.getElementById('wheelDzVal').textContent=this.value+'%'"></div>
+          <div class="ws-group toggle-group"><label>Gyro Steering</label><div class="toggle" id="gyroToggle" onclick="toggleGyroSteering()"><div class="toggle-knob"></div></div></div>
+        </div>
+      </div>
+
+      <!-- GYROSCOPE SECTION -->
+      <div class="dash-section" id="ds-gyro">
+        <div class="dash-section-header"><h2>Gyroscope Lab</h2><button class="btn btn-accent btn-sm" onclick="requestMotionPermission()">Enable Sensors</button></div>
+        <div class="gyro-layout">
+          <div class="gyro-phone-viz-wrap">
+            <div class="gyro-phone-3d" id="gyroPhone3d">
+              <div class="gp3d-screen">
+                <div class="gp3d-crosshair"></div>
+              </div>
+            </div>
+          </div>
+          <div class="gyro-data-panel">
+            <div class="sensor-group">
+              <div class="sensor-title">GYROSCOPE</div>
+              <div class="sensor-row"><span>Pitch (X)</span><div class="sensor-bar-wrap"><div class="sensor-bar" id="gyroPitchBar" style="width:50%"></div></div><span id="gyroPitchVal">0.0°</span></div>
+              <div class="sensor-row"><span>Roll (Y)</span><div class="sensor-bar-wrap"><div class="sensor-bar" id="gyroRollBar" style="width:50%"></div></div><span id="gyroRollVal">0.0°</span></div>
+              <div class="sensor-row"><span>Yaw (Z)</span><div class="sensor-bar-wrap"><div class="sensor-bar" id="gyroYawBar" style="width:50%"></div></div><span id="gyroYawVal">0.0°</span></div>
+            </div>
+            <div class="sensor-group">
+              <div class="sensor-title">ACCELEROMETER</div>
+              <div class="sensor-row"><span>X</span><div class="sensor-bar-wrap"><div class="sensor-bar accel-bar" id="accelXBar" style="width:50%"></div></div><span id="accelXVal">0.00</span></div>
+              <div class="sensor-row"><span>Y</span><div class="sensor-bar-wrap"><div class="sensor-bar accel-bar" id="accelYBar" style="width:50%"></div></div><span id="accelYVal">0.00</span></div>
+              <div class="sensor-row"><span>Z</span><div class="sensor-bar-wrap"><div class="sensor-bar accel-bar" id="accelZBar" style="width:50%"></div></div><span id="accelZVal">0.00</span></div>
+            </div>
+            <div class="gyro-controls">
+              <div class="slider-row"><label>Sensitivity <span id="gyroSensLbl">50%</span></label><input type="range" min="1" max="100" value="50" oninput="HP.state.inputs.gyro.sens=this.value;document.getElementById('gyroSensLbl').textContent=this.value+'%'"></div>
+              <div class="slider-row"><label>Smoothing <span id="gyroSmoothLbl">40%</span></label><input type="range" min="0" max="100" value="40" oninput="document.getElementById('gyroSmoothLbl').textContent=this.value+'%'"></div>
+              <div class="slider-row"><label>Dead Zone <span id="gyroDzLbl">5%</span></label><input type="range" min="0" max="30" value="5" oninput="document.getElementById('gyroDzLbl').textContent=this.value+'%'"></div>
+              <div class="axis-invert-row">
+                <label class="checkbox-label"><input type="checkbox" id="invertPitch"> Invert Pitch</label>
+                <label class="checkbox-label"><input type="checkbox" id="invertRoll"> Invert Roll</label>
+                <label class="checkbox-label"><input type="checkbox" id="invertYaw"> Invert Yaw</label>
+              </div>
+              <button class="btn btn-accent btn-full" onclick="calibrateGyroZero()">⊕ Calibrate Sensor</button>
+            </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- SECTION 4: CUSTOM CONTROLLER BUILDER -->
-    <section id="builderSection" class="app-section">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2>🛠️ WORKSTATION CONTROLLER BUILDER</h2>
-        <div>
-          <button class="cyber-button sm primary" onclick="saveCustomLayout()">💾 SAVE PROFILE</button>
-          <button class="cyber-button sm secondary" onclick="addCustomButton()">+ ADD BUTTON</button>
-          <button class="cyber-button sm secondary" onclick="addCustomStick()">+ ADD STICK</button>
+      <!-- MOUSE TRACKPAD SECTION -->
+      <div class="dash-section" id="ds-mouse">
+        <div class="dash-section-header"><h2>Mouse Trackpad</h2></div>
+        <div class="mouse-layout">
+          <div class="trackpad-surface" id="trackpadSurface">
+            <div class="trackpad-hint" id="trackpadHint">SLIDE TO MOVE CURSOR<br><span>Two fingers to scroll</span></div>
+            <div class="trackpad-cursor" id="trackpadCursor"></div>
+          </div>
+          <div class="mouse-buttons-row">
+            <button class="mouse-btn left-btn" id="mouseLeftBtn" ontouchstart="pressMouseBtn('left',true)" ontouchend="pressMouseBtn('left',false)" onmousedown="pressMouseBtn('left',true)" onmouseup="pressMouseBtn('left',false)">LEFT CLICK</button>
+            <button class="mouse-btn mid-btn" id="mouseMiddleBtn" ontouchstart="pressMouseBtn('middle',true)" ontouchend="pressMouseBtn('middle',false)" onmousedown="pressMouseBtn('middle',true)" onmouseup="pressMouseBtn('middle',false)">SCROLL</button>
+            <button class="mouse-btn right-btn" id="mouseRightBtn" ontouchstart="pressMouseBtn('right',true)" ontouchend="pressMouseBtn('right',false)" onmousedown="pressMouseBtn('right',true)" onmouseup="pressMouseBtn('right',false)">RIGHT CLICK</button>
+          </div>
+          <div class="mouse-settings">
+            <div class="slider-row"><label>Pointer Speed <span id="dpiLbl">5</span></label><input type="range" min="1" max="10" value="5" oninput="HP.state.inputs.mouse.dpi=this.value;document.getElementById('dpiLbl').textContent=this.value"></div>
+            <div class="slider-row"><label>Scroll Speed</label><input type="range" min="1" max="10" value="3"></div>
+            <label class="checkbox-label"><input type="checkbox" id="dragMode"> Drag Mode</label>
+          </div>
+          <div class="mouse-debug"><span>X: <b id="mousePosX">0</b>  Y: <b id="mousePosY">0</b></span><span id="mouseClickState">—</span></div>
         </div>
       </div>
-      <div class="builder-canvas" id="builderCanvas"></div>
-    </section>
-  </main>
 
-  <!-- SESSION PAIRING MODAL -->
-  <div class="modal-backdrop" id="sessionModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>⚡ HYPERPULSE PAIRING HUB</h3>
-        <button class="close-btn" onclick="closeSessionModal()">✕</button>
-      </div>
-      <div class="modal-tabs">
-        <button class="modal-tab-btn active" id="tabModUsb" onclick="switchModalTab('usb')">⚡ USB TYPE-C CABLE</button>
-        <button class="modal-tab-btn" id="tabModWifi" onclick="switchModalTab('wifi')">📶 WI-FI QR SCAN</button>
+      <!-- KEYBOARD SECTION -->
+      <div class="dash-section" id="ds-keyboard">
+        <div class="dash-section-header"><h2>Keyboard</h2>
+          <div class="kb-mode-tabs">
+            <button class="kb-tab active" id="kbt-full" onclick="switchKbMode('full')">FULL</button>
+            <button class="kb-tab" id="kbt-wasd" onclick="switchKbMode('wasd')">WASD</button>
+            <button class="kb-tab" id="kbt-numpad" onclick="switchKbMode('numpad')">NUMPAD</button>
+          </div>
+        </div>
+        <div id="kb-full" class="keyboard-view active">
+          <div class="keyboard-wrap">
+            <div class="kb-row kb-fn-row" id="kbFnRow"></div>
+            <div class="kb-row" id="kbRow1"></div>
+            <div class="kb-row" id="kbRow2"></div>
+            <div class="kb-row" id="kbRow3"></div>
+            <div class="kb-row" id="kbRow4"></div>
+            <div class="kb-row" id="kbRow5"></div>
+          </div>
+        </div>
+        <div id="kb-wasd" class="keyboard-view">
+          <div class="wasd-wrap">
+            <div class="wasd-grid">
+              <div></div>
+              <button class="kb-key wasd-key large-wasd" id="kbW" ontouchstart="pressKey('W',true)" ontouchend="pressKey('W',false)" onmousedown="pressKey('W',true)" onmouseup="pressKey('W',false)">W</button>
+              <div></div>
+              <button class="kb-key wasd-key large-wasd" id="kbA" ontouchstart="pressKey('A',true)" ontouchend="pressKey('A',false)" onmousedown="pressKey('A',true)" onmouseup="pressKey('A',false)">A</button>
+              <button class="kb-key wasd-key large-wasd" id="kbS" ontouchstart="pressKey('S',true)" ontouchend="pressKey('S',false)" onmousedown="pressKey('S',true)" onmouseup="pressKey('S',false)">S</button>
+              <button class="kb-key wasd-key large-wasd" id="kbD" ontouchstart="pressKey('D',true)" ontouchend="pressKey('D',false)" onmousedown="pressKey('D',true)" onmouseup="pressKey('D',false)">D</button>
+            </div>
+            <div class="wasd-extra">
+              <button class="kb-key large-wasd" ontouchstart="pressKey('SPACE',true)" ontouchend="pressKey('SPACE',false)" onmousedown="pressKey('SPACE',true)" onmouseup="pressKey('SPACE',false)">SPACE</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('SHIFT',true)" ontouchend="pressKey('SHIFT',false)" onmousedown="pressKey('SHIFT',true)" onmouseup="pressKey('SHIFT',false)">SHIFT</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('CTRL',true)" ontouchend="pressKey('CTRL',false)" onmousedown="pressKey('CTRL',true)" onmouseup="pressKey('CTRL',false)">CTRL</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('R',true)" ontouchend="pressKey('R',false)" onmousedown="pressKey('R',true)" onmouseup="pressKey('R',false)">R</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('F',true)" ontouchend="pressKey('F',false)" onmousedown="pressKey('F',true)" onmouseup="pressKey('F',false)">F</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('E',true)" ontouchend="pressKey('E',false)" onmousedown="pressKey('E',true)" onmouseup="pressKey('E',false)">E</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('Q',true)" ontouchend="pressKey('Q',false)" onmousedown="pressKey('Q',true)" onmouseup="pressKey('Q',false)">Q</button>
+              <button class="kb-key large-wasd" ontouchstart="pressKey('G',true)" ontouchend="pressKey('G',false)" onmousedown="pressKey('G',true)" onmouseup="pressKey('G',false)">G</button>
+            </div>
+          </div>
+        </div>
+        <div id="kb-numpad" class="keyboard-view">
+          <div class="numpad-wrap">
+            <div class="numpad-grid" id="numpadGrid"></div>
+          </div>
+        </div>
+        <div class="kb-debug"><span>Last Key: <b id="lastKeyPressed">—</b></span></div>
       </div>
 
-      <div id="modalUsbContent" class="modal-tab-content active">
-        <h4>ULTRA-LOW LATENCY (&lt;0.5MS) WIRED PAIRING</h4>
-        <p style="margin:10px 0;">Connect phone via USB Type-C data cable and click pair below.</p>
-        <button class="cyber-button lg primary" onclick="connectUsbDeviceHost()">⚡ PAIR C-TO-C CABLE NOW</button>
+      <!-- CUSTOM BUILDER SECTION -->
+      <div class="dash-section" id="ds-custom">
+        <div class="dash-section-header">
+          <h2>Custom Controller Builder</h2>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" class="form-input" style="width:160px;" placeholder="Profile name" id="builderProfileName">
+            <button class="btn btn-ghost btn-sm" onclick="clearBuilder()">🗑 Clear</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadBuilderProfile()">📂 Load</button>
+            <button class="btn btn-accent btn-sm" onclick="saveBuilderProfile()">💾 Save</button>
+          </div>
+        </div>
+        <div class="builder-layout">
+          <div class="builder-palette">
+            <div class="palette-title">CONTROLS</div>
+            <div class="palette-item" draggable="true" data-type="joystick" ondragstart="dragPalette(event,'joystick')">🕹 Joystick</div>
+            <div class="palette-item" draggable="true" data-type="button" ondragstart="dragPalette(event,'button')">⬤ Button</div>
+            <div class="palette-item" draggable="true" data-type="dpad" ondragstart="dragPalette(event,'dpad')">✛ D-Pad</div>
+            <div class="palette-item" draggable="true" data-type="trigger" ondragstart="dragPalette(event,'trigger')">⬛ Trigger</div>
+            <div class="palette-item" draggable="true" data-type="slider" ondragstart="dragPalette(event,'slider')">— Slider</div>
+            <div class="palette-item" draggable="true" data-type="touchpad" ondragstart="dragPalette(event,'touchpad')">▭ Touchpad</div>
+            <div class="palette-item" draggable="true" data-type="gyro" ondragstart="dragPalette(event,'gyro')">🌀 Gyro Zone</div>
+            <div class="palette-item" draggable="true" data-type="macro" ondragstart="dragPalette(event,'macro')">⚡ Macro</div>
+            <div class="palette-title" style="margin-top:16px;">SELECTED</div>
+            <div class="props-panel" id="builderProps">
+              <div class="empty-props">No element selected</div>
+            </div>
+          </div>
+          <div class="builder-canvas" id="builderCanvas" ondragover="event.preventDefault()" ondrop="dropOnCanvas(event)">
+            <div class="builder-grid-hint">Drag controls here to build your layout</div>
+          </div>
+        </div>
       </div>
 
-      <div id="modalWifiContent" class="modal-tab-content">
-        <div id="modalQrDisplay" style="background:#fff; padding:10px; width:fit-content; margin:0 auto 10px auto;"></div>
-        <div style="text-align:center; font-family:var(--font-mono); font-size:1.5rem;" id="modalRoomCode">HYPER-8921</div>
+      <!-- GAME PROFILES SECTION -->
+      <div class="dash-section" id="ds-profiles">
+        <div class="dash-section-header">
+          <h2>Game Profiles</h2>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="importProfile()">📥 Import</button>
+            <button class="btn btn-accent btn-sm" onclick="openNewProfileModal()">+ New Profile</button>
+          </div>
+        </div>
+        <div class="profiles-grid" id="profilesGrid"></div>
       </div>
+
+      <!-- COMMUNITY SECTION -->
+      <div class="dash-section" id="ds-community">
+        <div class="dash-section-header">
+          <h2>Community Profiles</h2>
+          <button class="btn btn-accent btn-sm" onclick="openUploadModal()">↑ Upload Profile</button>
+        </div>
+        <div class="community-filters">
+          <input type="text" class="form-input" placeholder="Search profiles..." id="communitySearch" oninput="filterCommunity(this.value)">
+          <select class="form-select" id="communityFilter" onchange="filterCommunity()">
+            <option value="">All Modes</option>
+            <option value="gamepad">Gamepad</option>
+            <option value="racing">Racing</option>
+            <option value="gyro">Gyroscope</option>
+            <option value="custom">Custom</option>
+          </select>
+          <select class="form-select" onchange="sortCommunity(this.value)">
+            <option value="downloads">Most Downloaded</option>
+            <option value="rating">Top Rated</option>
+            <option value="new">Newest</option>
+          </select>
+        </div>
+        <div class="community-grid" id="communityGrid"></div>
+      </div>
+
+      <!-- MULTIPLAYER SECTION -->
+      <div class="dash-section" id="ds-multiplayer">
+        <div class="dash-section-header"><h2>Multiplayer Room</h2></div>
+        <div class="multiplayer-layout">
+          <div class="room-card">
+            <div class="room-code-label">ROOM CODE</div>
+            <div class="room-code" id="roomCode">HYPER-4821</div>
+            <div class="room-actions">
+              <button class="btn btn-ghost btn-sm" onclick="copyRoomCode()">📋 Copy Code</button>
+              <button class="btn btn-accent btn-sm" onclick="newRoomCode()">⟳ New Room</button>
+            </div>
+          </div>
+          <div class="players-grid">
+            <div class="player-slot" id="playerSlot1">
+              <div class="player-num">P1</div>
+              <div class="player-status connected"><span class="status-dot active"></span> Connected</div>
+              <div class="player-name" id="p1Name">You</div>
+              <div class="player-mode" id="p1Mode">Gamepad</div>
+            </div>
+            <div class="player-slot waiting" id="playerSlot2">
+              <div class="player-num">P2</div>
+              <div class="player-status"><span class="status-dot"></span> Waiting...</div>
+              <div class="player-name">—</div>
+            </div>
+            <div class="player-slot waiting" id="playerSlot3">
+              <div class="player-num">P3</div>
+              <div class="player-status"><span class="status-dot"></span> Waiting...</div>
+              <div class="player-name">—</div>
+            </div>
+            <div class="player-slot waiting" id="playerSlot4">
+              <div class="player-num">P4</div>
+              <div class="player-status"><span class="status-dot"></span> Waiting...</div>
+              <div class="player-name">—</div>
+            </div>
+          </div>
+          <div class="room-info-note">Share the room code or QR with other players. Each player opens Hyperpulse on their phone and joins the session.</div>
+          <div class="qr-box-small"><div id="mpQrCode"></div></div>
+          <button class="btn btn-accent btn-lg" onclick="startMultiplayerSession()" style="margin-top:20px;">▶ Start Session</button>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE SECTION -->
+      <div class="dash-section" id="ds-performance">
+        <div class="dash-section-header"><h2>Performance Monitor</h2></div>
+        <div class="perf-stats">
+          <div class="perf-stat-card"><div class="psc-label">LATENCY</div><div class="psc-value" id="perfLatency">-- ms</div><div class="psc-sub">Round-trip</div></div>
+          <div class="perf-stat-card"><div class="psc-label">PACKET LOSS</div><div class="psc-value" id="perfLoss">0%</div><div class="psc-sub">Last 100 packets</div></div>
+          <div class="perf-stat-card"><div class="psc-label">INPUT RATE</div><div class="psc-value" id="perfRate">-- Hz</div><div class="psc-sub">Polling frequency</div></div>
+          <div class="perf-stat-card"><div class="psc-label">SIGNAL</div><div class="psc-value cs-success" id="perfSignal">—</div><div class="psc-sub">Connection quality</div></div>
+        </div>
+        <div class="perf-graph-card">
+          <div class="dash-card-header"><h3>Latency Graph</h3><span class="badge-tag-sm" id="perfTransport">Wi-Fi</span></div>
+          <canvas id="latencyCanvas" width="800" height="160"></canvas>
+        </div>
+        <div class="perf-log-card">
+          <div class="dash-card-header"><h3>Connection Log</h3><button class="btn btn-ghost btn-sm" onclick="clearPerfLog()">Clear</button></div>
+          <div class="conn-log" id="connLog">
+            <div class="log-entry">[--:--:--] Waiting for device connection...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS SECTION -->
+      <div class="dash-section" id="ds-settings">
+        <div class="dash-section-header"><h2>Settings</h2></div>
+        <div class="settings-layout">
+          <div class="settings-tabs">
+            <button class="stab active" id="stab-controller" onclick="switchSettingsTab('controller')">Controller</button>
+            <button class="stab" id="stab-motion" onclick="switchSettingsTab('motion')">Motion</button>
+            <button class="stab" id="stab-connection" onclick="switchSettingsTab('connection')">Connection</button>
+            <button class="stab" id="stab-appearance" onclick="switchSettingsTab('appearance')">Appearance</button>
+          </div>
+          <div class="settings-content">
+            <div class="settings-pane active" id="spane-controller">
+              <div class="setting-group"><h4>Gamepad</h4>
+                <div class="setting-row"><label>Button Sensitivity</label><input type="range" min="1" max="10" value="8"><span>8</span></div>
+                <div class="setting-row"><label>Joystick Sensitivity</label><input type="range" min="1" max="10" value="6"><span>6</span></div>
+                <div class="setting-row"><label>Dead Zone</label><input type="range" min="0" max="30" value="5"><span>5%</span></div>
+                <div class="setting-row"><label>Trigger Sensitivity</label><input type="range" min="1" max="10" value="7"><span>7</span></div>
+                <div class="setting-row"><label>Vibration</label><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+                <div class="setting-row"><label>Haptic Feedback</label><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+              </div>
+            </div>
+            <div class="settings-pane" id="spane-motion">
+              <div class="setting-group"><h4>Gyroscope &amp; Motion</h4>
+                <div class="setting-row"><label>Gyroscope Sensitivity</label><input type="range" min="1" max="10" value="5"><span>5</span></div>
+                <div class="setting-row"><label>Accelerometer Sensitivity</label><input type="range" min="1" max="10" value="5"><span>5</span></div>
+                <div class="setting-row"><label>Motion Smoothing</label><input type="range" min="0" max="100" value="40"><span>40%</span></div>
+                <div class="setting-row"><label>Invert Pitch</label><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+                <div class="setting-row"><label>Invert Roll</label><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+                <div class="setting-row" style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="calibrateGyroZero()">⊕ Calibrate Now</button></div>
+              </div>
+            </div>
+            <div class="settings-pane" id="spane-connection">
+              <div class="setting-group"><h4>Transport</h4>
+                <div class="setting-row"><label>Default Transport</label>
+                  <select class="form-select"><option>Wi-Fi</option><option>Bluetooth</option><option>USB</option></select>
+                </div>
+                <div class="setting-row"><label>Auto Reconnect</label><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+                <div class="setting-row"><label>Connection Timeout (s)</label><input type="range" min="5" max="60" value="30"><span>30</span></div>
+                <div class="setting-row"><label>Polling Rate</label>
+                  <select class="form-select"><option>60 Hz</option><option selected>120 Hz</option><option>240 Hz</option></select>
+                </div>
+              </div>
+            </div>
+            <div class="settings-pane" id="spane-appearance">
+              <div class="setting-group"><h4>Appearance</h4>
+                <div class="setting-row"><label>Theme</label>
+                  <select class="form-select" onchange="applyTheme(this.value)"><option value="dark">Dark (Default)</option><option value="amoled">AMOLED Black</option><option value="light">Light</option></select>
+                </div>
+                <div class="setting-row"><label>Accent Color</label>
+                  <div style="display:flex;gap:8px;">
+                    <div class="color-swatch" style="background:#6c63ff;" onclick="setAccent('#6c63ff')"></div>
+                    <div class="color-swatch" style="background:#00d4ff;" onclick="setAccent('#00d4ff')"></div>
+                    <div class="color-swatch" style="background:#ff4444;" onclick="setAccent('#ff4444')"></div>
+                    <div class="color-swatch" style="background:#00ff88;" onclick="setAccent('#00ff88')"></div>
+                    <div class="color-swatch" style="background:#ffaa00;" onclick="setAccent('#ffaa00')"></div>
+                  </div>
+                </div>
+                <div class="setting-row"><label>Controller Theme</label>
+                  <select class="form-select"><option>Default Dark</option><option>Neon</option><option>Minimal</option><option>Classic</option></select>
+                </div>
+                <div class="setting-row"><label>UI Scale</label><input type="range" min="80" max="120" value="100"><span>100%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;">
+          <button class="btn btn-ghost btn-sm" onclick="resetSettings()">↺ Reset Defaults</button>
+          <button class="btn btn-accent btn-sm" onclick="saveSettings()">💾 Save Settings</button>
+        </div>
+      </div>
+
+      <!-- HELP SECTION -->
+      <div class="dash-section" id="ds-help">
+        <div class="dash-section-header"><h2>Help &amp; Troubleshooting</h2></div>
+        <div class="help-layout">
+          <div class="help-search"><input type="text" class="form-input" placeholder="Search help articles..." oninput="filterHelp(this.value)"></div>
+          <div class="help-grid" id="helpGrid"></div>
+          <div class="help-contact">
+            <p>Still stuck? <a href="#" class="form-link">Contact Support →</a></p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<!-- END DASHBOARD -->
+
+<!-- ========== MODALS ========== -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+
+<!-- Connect Device Modal -->
+<div class="modal" id="connectModal">
+  <div class="modal-header"><h3>Connect Your Device</h3><button class="modal-close" onclick="closeModal('connectModal')">✕</button></div>
+  <div class="connect-modal-tabs">
+    <button class="cmt active" id="cmt-qr" onclick="switchConnectTab('qr')">QR Code</button>
+    <button class="cmt" id="cmt-code" onclick="switchConnectTab('code')">Enter Code</button>
+    <button class="cmt" id="cmt-wifi" onclick="switchConnectTab('wifi')">Wi-Fi</button>
+    <button class="cmt" id="cmt-bt" onclick="switchConnectTab('bt')">Bluetooth</button>
+    <button class="cmt" id="cmt-usb" onclick="switchConnectTab('usb')">USB</button>
+  </div>
+  <div id="cmc-qr" class="cmc active">
+    <div class="qr-mock-sm"><div class="qr-corner tl"></div><div class="qr-corner tr"></div><div class="qr-corner bl"></div><div class="qr-corner br"></div><div class="qr-grid-sm" id="modalQrGrid"></div><div class="qr-scan-line" id="modalScanLine"></div></div>
+    <div class="modal-room-code" id="modalRoomCodeDisplay">HYPER-4821</div>
+    <p class="modal-hint">Open Hyperpulse on your phone and scan this QR code, or enter the room code manually.</p>
+  </div>
+  <div id="cmc-code" class="cmc">
+    <p class="modal-hint">Enter the room code from your phone app:</p>
+    <div style="display:flex;gap:8px;">
+      <input type="text" class="form-input" id="manualCodeInput" placeholder="HYPER-XXXX" style="flex:1;">
+      <button class="btn btn-accent" onclick="joinByCode()">Join</button>
     </div>
   </div>
+  <div id="cmc-wifi" class="cmc"><p class="modal-hint">Make sure your phone and PC are on the same Wi-Fi network. Open Hyperpulse on your phone — it will detect this session automatically.</p><button class="btn btn-accent btn-full" onclick="simulateConnect('Wi-Fi')">Detect Device</button></div>
+  <div id="cmc-bt" class="cmc"><p class="modal-hint">Enable Bluetooth on both devices, then click pair.</p><button class="btn btn-accent btn-full" onclick="simulateConnect('Bluetooth')">Pair via Bluetooth</button></div>
+  <div id="cmc-usb" class="cmc"><p class="modal-hint">Connect your phone via USB cable. Enable USB debugging on your device.</p><button class="btn btn-accent btn-full" onclick="connectUsb()">Connect USB</button></div>
+  <div class="modal-device-status" id="modalDeviceStatus"></div>
+</div>
 
-  <!-- ON-SCREEN MOBILE PHONE SIMULATOR DRAWER -->
-  <div class="mobile-simulator-drawer" id="mobileSimulatorDrawer">
-    <div class="sim-header">
-      <span>📱 SMARTPHONE SIMULATOR</span>
-      <button class="close-btn" onclick="toggleMobileSimulator()" style="color:#fff;">✕</button>
-    </div>
-    <div class="sim-phone-body">
-      <iframe id="simIframe" src="about:blank"></iframe>
-    </div>
+<!-- New Profile Modal -->
+<div class="modal" id="newProfileModal">
+  <div class="modal-header"><h3>New Game Profile</h3><button class="modal-close" onclick="closeModal('newProfileModal')">✕</button></div>
+  <div class="form-group"><label>Game Name</label><input type="text" class="form-input" id="npGameName" placeholder="e.g. GTA V"></div>
+  <div class="form-group"><label>Controller Mode</label>
+    <select class="form-select" id="npMode">
+      <option value="gamepad">Gamepad</option>
+      <option value="wheel">Racing Wheel</option>
+      <option value="gyro">Gyroscope</option>
+      <option value="mouse">Mouse</option>
+      <option value="keyboard">Keyboard</option>
+      <option value="custom">Custom</option>
+    </select>
   </div>
+  <div class="form-group"><label>Notes</label><textarea class="form-input" id="npNotes" placeholder="Optional notes..." rows="3"></textarea></div>
+  <button class="btn btn-accent btn-full" onclick="createProfile()">Create Profile</button>
+</div>
 
-  <script src="app.js"></script>
+<!-- Upload Community Modal -->
+<div class="modal" id="uploadModal">
+  <div class="modal-header"><h3>Share to Community</h3><button class="modal-close" onclick="closeModal('uploadModal')">✕</button></div>
+  <div class="form-group"><label>Profile Name</label><input type="text" class="form-input" placeholder="e.g. GTA V Perfect Setup"></div>
+  <div class="form-group"><label>Description</label><textarea class="form-input" rows="3" placeholder="Describe your profile..."></textarea></div>
+  <div class="form-group"><label>Tags</label><input type="text" class="form-input" placeholder="gamepad, gta, casual"></div>
+  <button class="btn btn-accent btn-full" onclick="uploadCommunityProfile()">Share Profile →</button>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
