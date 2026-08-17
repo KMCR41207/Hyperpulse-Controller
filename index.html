@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HYPERPULSE // Industrial Mobile Game Controller OS</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-industrial">
+
+  <!-- Main Technical Header -->
+  <header class="cyber-header" id="mainHeader">
+    <div class="header-container">
+      <div class="logo-group" onclick="showSection('landing')">
+        <div class="logo-icon">HP</div>
+        <div class="logo-text">
+          <span class="brand-title">HYPER<span class="accent-text">PULSE</span></span>
+          <span class="brand-sub">INPUT SYSTEM / 001</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-btn active" onclick="showSection('landing')">01 OVERVIEW</button>
+        <button class="nav-btn" onclick="showSection('modes')">02 MODES</button>
+        <button class="nav-btn" onclick="showSection('builder')">03 BUILDER</button>
+        <button class="nav-btn highlight-btn" onclick="openSessionModal()">⚡ SESSION HUB</button>
+      </nav>
+
+      <div class="header-controls">
+        <button class="icon-toggle" id="audioToggleBtn" title="Toggle Audio" onclick="toggleAudio()">
+          <span class="icon">🔊</span>
+        </button>
+        <button class="cyber-button sm primary" onclick="toggleMobileSimulator()">
+          📱 PHONE SIMULATOR
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner / Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main id="appContainer">
+
+    <!-- SECTION 1: EDITORIAL LANDING PAGE -->
+    <section id="landingSection" class="app-section active">
+      <!-- Hero Section -->
+      <div class="hero-wrapper">
+        <div class="hero-content">
+          <div class="hero-meta-bar">
+            <span>SYS / 001</span>
+            <span>REALTIME WIRED & P2P</span>
+            <span>REF: HP-2026</span>
+          </div>
+
+          <h1 class="hero-title">
+            YOUR<br>
+            PHONE<br>
+            BECOMES<br>
+            THE<br>
+            <span class="accent-text">MACHINE.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Transform any smartphone into an ultra-low latency (<0.5ms) wired USB or wireless PC controller, Logitech G29 racing wheel, 3-axis gyro aim device, or precision trackpad mouse.
+          </p>
+
+          <!-- Transport Quick Select -->
+          <div class="transport-selector-card">
+            <div class="transport-title">TRANSPORT PROTOCOL // SELECT METHOD</div>
+            <div class="transport-grid">
+              <div class="transport-option active" id="modeUsbOption" onclick="selectTransportMode('usb')">
+                <div class="transport-icon">⚡</div>
+                <div class="transport-info">
+                  <div class="name">USB TYPE-C</div>
+                  <div class="desc">&lt; 0.5 ms Wired</div>
+                </div>
+                <span class="badge-tag">RAW USB</span>
+              </div>
+              <div class="transport-option" id="modeWifiOption" onclick="selectTransportMode('wifi')">
+                <div class="transport-icon">📶</div>
+                <div class="transport-info">
+                  <div class="name">WI-FI P2P</div>
+                  <div class="desc">1.8 ms QR Link</div>
+                </div>
+              </div>
+              <div class="transport-option" id="modeLocalOption" onclick="selectTransportMode('local')">
+                <div class="transport-icon">🔗</div>
+                <div class="transport-info">
+                  <div class="name">LOCAL SYNC</div>
+                  <div class="desc">Dual-Window Test</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <button class="cyber-button lg primary" onclick="startHostSession()">
+              [ CREATE HOST SESSION ↗ ]
+            </button>
+            <button class="cyber-button lg secondary" onclick="openJoinModal()">
+              [ JOIN AS CONTROLLER ]
+            </button>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div class="hero-metrics">
+            <div class="metric-item">
+              <span class="label">POLLING RATE</span>
+              <span class="value">1000 HZ</span>
+            </div>
+            <div class="metric-item">
+              <span class="label">MIN LATENCY</span>
+              <span class="value">&lt; 0.4 MS</span>
+            </div>
+            <div class="metric-item">
+              <span class="label">HARDWARE DRIVERS</span>
+              <span class="value">ZERO INSTALL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Technical Diagram Phone Visual -->
+        <div class="hero-visual">
+          <div class="phone-frame-3d">
+            <div class="phone-screen-content">
+              <div class="mini-wheel-canvas-wrap">
+                <canvas id="heroWheelCanvas" width="280" height="280"></canvas>
+              </div>
+              <div class="hud-readout">
+                <div class="speed-val">248 KM/H</div>
+                <div class="gear-val">GEAR 5 // REV 8200 RPM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How It Works Section -->
+      <div class="section-container">
+        <h2 class="section-title">SYSTEM WORKFLOW</h2>
+        <p class="section-sub">4-STEP HIGH-PRECISION INITIALIZATION</p>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <h3>CREATE SESSION</h3>
+            <p>Launch host telemetry dashboard to generate raw USB tethering address or QR pairing code.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <h3>PAIR HARDWARE</h3>
+            <p>Plug in a USB Type-C cable or scan the QR code to lock sub-millisecond data channels.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <h3>SELECT MODE</h3>
+            <p>Deploy Gamepad, G29 Racing Wheel, 3-Axis Gyro Aim, Mouse Trackpad, or Custom Layout.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <h3>UNLEASH DOMINANCE</h3>
+            <p>Execute zero-lag input polling with Web Audio feedback and hardware telemetry synchronization.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Showcase Grid -->
+      <div class="section-container">
+        <h2 class="section-title">FIVE CONTROLLER MODES</h2>
+        <p class="section-sub">INDUSTRIAL SENSOR & TELEMETRY SUBSYSTEMS</p>
+
+        <div class="modes-showcase-grid">
+          <!-- Gamepad Showcase -->
+          <div class="mode-card" onclick="openModeDirect('gamepad')">
+            <div class="mode-header">
+              <span class="mode-icon">🎮</span>
+              <span class="mode-tag">INPUT / 01</span>
+            </div>
+            <h3>FULL VIRTUAL GAMEPAD</h3>
+            <p>Dual analog thumbsticks, D-Pad, face buttons (A/B/X/Y), pressure L2/R2 triggers, bumpers, and tactile haptics.</p>
+            <button class="cyber-button sm secondary">LAUNCH GAMEPAD →</button>
+          </div>
+
+          <!-- Racing Wheel Showcase -->
+          <div class="mode-card" onclick="openModeDirect('wheel')">
+            <div class="mode-header">
+              <span class="mode-icon">🏎️</span>
+              <span class="mode-tag">INPUT / 02</span>
+            </div>
+            <h3>LOGITECH G29 RACING WHEEL</h3>
+            <p>900° virtual tilt steering wheel, LED RPM shift light bar, digital telemetry cockpit, paddle shifters, throttle, brake & clutch pedals.</p>
+            <button class="cyber-button sm primary">ENTER COCKPIT →</button>
+          </div>
+
+          <!-- Gyro Showcase -->
+          <div class="mode-card" onclick="openModeDirect('gyro')">
+            <div class="mode-header">
+              <span class="mode-icon">🧭</span>
+              <span class="mode-tag">INPUT / 03</span>
+            </div>
+            <h3>GYROSCOPE MOTION AIM</h3>
+            <p>Physical 3-axis motion aiming (Pitch/Roll/Yaw) with artificial horizon visualization and zero calibration.</p>
+            <button class="cyber-button sm secondary">CALIBRATE GYRO →</button>
+          </div>
+
+          <!-- Mouse Showcase -->
+          <div class="mode-card" onclick="openModeDirect('mouse')">
+            <div class="mode-header">
+              <span class="mode-icon">🖱️</span>
+              <span class="mode-tag">INPUT / 04</span>
+            </div>
+            <h3>TOUCH TRACKPAD MOUSE</h3>
+            <p>Precision multi-touch touchpad with scroll zone, mechanical clicks, and DPI scale controls.</p>
+            <button class="cyber-button sm secondary">OPEN TRACKPAD →</button>
+          </div>
+
+          <!-- Builder Showcase -->
+          <div class="mode-card wide-card" onclick="showSection('builder')">
+            <div class="mode-header">
+              <span class="mode-icon">🛠️</span>
+              <span class="mode-tag">INPUT / 05</span>
+            </div>
+            <h3>CUSTOM CONTROLLER BUILDER</h3>
+            <p>Drag, resize, recolor, and map buttons anywhere on your custom canvas. Save and swap layouts for FPS, Flight, Racing, and Emulators.</p>
+            <button class="cyber-button sm secondary">BUILD LAYOUT →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: HOST DASHBOARD & INPUT TELEMETRY -->
+    <section id="hostDashboardSection" class="app-section">
+      <div class="dashboard-header">
+        <div>
+          <span class="brand-sub">HOST TELEMETRY SYSTEM</span>
+          <h2 class="dash-code-title">SESSION: <span id="dashSessionCode">HYPER-8921</span></h2>
+        </div>
+        <div class="dash-metrics">
+          <div class="metric-pill">
+            <span>TRANSPORT:</span>
+            <span id="dashTransportType">⚡ USB CABLE</span>
+          </div>
+          <div class="metric-pill">
+            <span>LATENCY:</span>
+            <span id="dashLatencyVal">0.4 MS</span>
+          </div>
+          <div class="metric-pill">
+            <span>POLLING:</span>
+            <span id="dashPollingVal">1000 HZ</span>
+          </div>
+          <button class="cyber-button sm danger" onclick="endHostSession()">DISCONNECT</button>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Connection Hub & Pairing Panel -->
+        <div class="dash-card">
+          <h3>LINK & PAIRING HUB</h3>
+          <div class="qr-box">
+            <div id="dashboardQrCode"></div>
+          </div>
+          <div class="big-code" id="dashBigCode">8921</div>
+          <div class="pairing-methods">
+            <button class="cyber-button sm secondary" onclick="connectUsbDeviceHost()">⚡ PAIR USB CABLE</button>
+            <button class="cyber-button sm secondary" onclick="copySessionLink()">📋 COPY MOBILE LINK</button>
+            <button class="cyber-button sm primary" onclick="toggleMobileSimulator()">📱 PHONE SIMULATOR</button>
+          </div>
+        </div>
+
+        <!-- Live Telemetry Monitor -->
+        <div class="dash-card">
+          <h3>LIVE INPUT TELEMETRY MONITOR</h3>
+          <div class="telemetry-grid">
+            <div class="tele-box">
+              <div class="box-title">BUTTON STATES</div>
+              <div class="buttons-state-grid" id="teleButtonsGrid">
+                <span class="btn-chip" id="chip-A">A</span>
+                <span class="btn-chip" id="chip-B">B</span>
+                <span class="btn-chip" id="chip-X">X</span>
+                <span class="btn-chip" id="chip-Y">Y</span>
+                <span class="btn-chip" id="chip-L1">L1</span>
+                <span class="btn-chip" id="chip-R1">R1</span>
+                <span class="btn-chip" id="chip-L2">L2</span>
+                <span class="btn-chip" id="chip-R2">R2</span>
+                <span class="btn-chip" id="chip-START">START</span>
+                <span class="btn-chip" id="chip-SELECT">SELECT</span>
+              </div>
+            </div>
+
+            <div class="tele-box">
+              <div class="box-title">ANALOG AXES</div>
+              <div id="teleStickL">LX: 0.00 | LY: 0.00</div>
+              <div id="teleStickR">RX: 0.00 | RY: 0.00</div>
+            </div>
+
+            <div class="tele-box">
+              <div class="box-title">RACING WHEEL</div>
+              <div>STEERING: <span id="teleWheelAngle">0°</span></div>
+            </div>
+
+            <div class="tele-box">
+              <div class="box-title">GYRO ORIENTATION</div>
+              <div>PITCH: <span id="telePitch">0.0°</span> | ROLL: <span id="teleRoll">0.0°</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: CONTROLLER MODES SELECTION & VIEW -->
+    <section id="modesSection" class="app-section">
+      <div class="mode-navigation-bar">
+        <button class="mode-nav-btn active" id="tabGamepadBtn" onclick="switchControllerTab('gamepad')">🎮 GAMEPAD</button>
+        <button class="mode-nav-btn" id="tabWheelBtn" onclick="switchControllerTab('wheel')">🏎️ RACING WHEEL</button>
+        <button class="mode-nav-btn" id="tabGyroBtn" onclick="switchControllerTab('gyro')">🧭 GYROSCOPE</button>
+        <button class="mode-nav-btn" id="tabMouseBtn" onclick="switchControllerTab('mouse')">🖱️ TOUCH MOUSE</button>
+      </div>
+
+      <!-- TAB 1: VIRTUAL GAMEPAD -->
+      <div id="tabGamepad" class="controller-tab-content active">
+        <div class="gamepad-ui-frame">
+          <div class="gamepad-top-bar">
+            <span>HYPERPULSE // GAMEPAD HARDWARE</span>
+            <div>
+              <button class="cyber-button sm secondary" id="btnSelect" onmousedown="handleButtonPress('SELECT', true)" onmouseup="handleButtonPress('SELECT', false)" ontouchstart="handleButtonPress('SELECT', true)" ontouchend="handleButtonPress('SELECT', false)">SELECT</button>
+              <button class="cyber-button sm primary" id="btnStart" onmousedown="handleButtonPress('START', true)" onmouseup="handleButtonPress('START', false)" ontouchstart="handleButtonPress('START', true)" ontouchend="handleButtonPress('START', false)">START</button>
+            </div>
+          </div>
+
+          <div class="gamepad-main-body">
+            <div class="gamepad-side">
+              <div class="bumpers-group">
+                <button class="bumper-btn" id="btnL1" onmousedown="handleButtonPress('L1', true)" onmouseup="handleButtonPress('L1', false)" ontouchstart="handleButtonPress('L1', true)" ontouchend="handleButtonPress('L1', false)">L1</button>
+              </div>
+
+              <div class="dpad-container">
+                <button class="dpad-btn up" onmousedown="handleButtonPress('DPAD_UP', true)" onmouseup="handleButtonPress('DPAD_UP', false)" ontouchstart="handleButtonPress('DPAD_UP', true)" ontouchend="handleButtonPress('DPAD_UP', false)">▲</button>
+                <button class="dpad-btn left" onmousedown="handleButtonPress('DPAD_LEFT', true)" onmouseup="handleButtonPress('DPAD_LEFT', false)" ontouchstart="handleButtonPress('DPAD_LEFT', true)" ontouchend="handleButtonPress('DPAD_LEFT', false)">◀</button>
+                <div class="dpad-center"></div>
+                <button class="dpad-btn right" onmousedown="handleButtonPress('DPAD_RIGHT', true)" onmouseup="handleButtonPress('DPAD_RIGHT', false)" ontouchstart="handleButtonPress('DPAD_RIGHT', true)" ontouchend="handleButtonPress('DPAD_RIGHT', false)">▶</button>
+                <button class="dpad-btn down" onmousedown="handleButtonPress('DPAD_DOWN', true)" onmouseup="handleButtonPress('DPAD_DOWN', false)" ontouchstart="handleButtonPress('DPAD_DOWN', true)" ontouchend="handleButtonPress('DPAD_DOWN', false)">▼</button>
+              </div>
+
+              <div class="touch-stick-base" id="leftStickBase">
+                <div class="touch-stick-thumb" id="leftStickThumb"></div>
+              </div>
+            </div>
+
+            <div class="gamepad-side">
+              <div class="bumpers-group">
+                <button class="bumper-btn" id="btnR1" onmousedown="handleButtonPress('R1', true)" onmouseup="handleButtonPress('R1', false)" ontouchstart="handleButtonPress('R1', true)" ontouchend="handleButtonPress('R1', false)">R1</button>
+              </div>
+
+              <div class="face-buttons-container">
+                <button class="face-btn btn-y" onmousedown="handleButtonPress('Y', true)" onmouseup="handleButtonPress('Y', false)" ontouchstart="handleButtonPress('Y', true)" ontouchend="handleButtonPress('Y', false)">Y</button>
+                <button class="face-btn btn-x" onmousedown="handleButtonPress('X', true)" onmouseup="handleButtonPress('X', false)" ontouchstart="handleButtonPress('X', true)" ontouchend="handleButtonPress('X', false)">X</button>
+                <button class="face-btn btn-b" onmousedown="handleButtonPress('B', true)" onmouseup="handleButtonPress('B', false)" ontouchstart="handleButtonPress('B', true)" ontouchend="handleButtonPress('B', false)">B</button>
+                <button class="face-btn btn-a" onmousedown="handleButtonPress('A', true)" onmouseup="handleButtonPress('A', false)" ontouchstart="handleButtonPress('A', true)" ontouchend="handleButtonPress('A', false)">A</button>
+              </div>
+
+              <div class="touch-stick-base" id="rightStickBase">
+                <div class="touch-stick-thumb" id="rightStickThumb"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LOGITECH G29 RACING WHEEL -->
+      <div id="tabWheel" class="controller-tab-content">
+        <div class="cockpit-container">
+          <div class="rpm-shift-bar" id="rpmBar">
+            <div class="led green"></div><div class="led green"></div><div class="led green"></div>
+            <div class="led yellow"></div><div class="led yellow"></div><div class="led yellow"></div>
+            <div class="led red"></div><div class="led red"></div>
+          </div>
+
+          <div class="cockpit-layout">
+            <div class="cockpit-side">
+              <div class="speedo-box"><span id="cockpitSpeed">184</span> KM/H</div>
+              <div>GEAR: <span id="cockpitGear">4</span></div>
+              <button class="cyber-button sm secondary" onclick="shiftGear(-1)">SHIFT DOWN [-]</button>
+              <button class="cyber-button sm primary" onclick="shiftGear(1)">SHIFT UP [+]</button>
+            </div>
+
+            <div class="cockpit-center">
+              <div class="paddle-shifter" onclick="shiftGear(-1)">-</div>
+              <div class="steering-wheel-wrapper">
+                <canvas id="wheelCanvas" width="360" height="360"></canvas>
+                <div style="text-align:center; font-family:var(--font-mono); font-size:1.2rem; color:#fff;">
+                  ANGLE: <span id="wheelAngleText">0°</span>
+                </div>
+              </div>
+              <div class="paddle-shifter" onclick="shiftGear(1)">+</div>
+            </div>
+
+            <div class="cockpit-side">
+              <div class="pedal-control">
+                <span>THROTTLE</span>
+                <input type="range" class="pedal-slider" min="0" max="100" value="0" oninput="handlePedalInput('throttle', this.value)">
+              </div>
+              <div class="pedal-control">
+                <span>BRAKE</span>
+                <input type="range" class="pedal-slider" min="0" max="100" value="0" oninput="handlePedalInput('brake', this.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: GYROSCOPE MOTION CONTROL -->
+      <div id="tabGyro" class="controller-tab-content">
+        <div class="gamepad-ui-frame">
+          <h3>🧭 GYROSCOPE 3D MOTION AIM & STEERING</h3>
+          <button class="cyber-button sm primary" onclick="calibrateGyroZero()">🎯 CALIBRATE ZERO</button>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-top:20px;">
+            <canvas id="horizonCanvas" width="400" height="300" style="border:1px solid var(--dark-border); background:#000;"></canvas>
+            <div>
+              <div>PITCH: <span id="gyroPitchVal">0.0°</span></div>
+              <div>ROLL: <span id="gyroRollVal">0.0°</span></div>
+              <div>YAW: <span id="gyroYawVal">0.0°</span></div>
+              <button class="cyber-button sm secondary" onclick="requestMotionPermission()" style="margin-top:20px;">PERMIT MOTION SENSORS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: WIRELESS TOUCH MOUSE -->
+      <div id="tabMouse" class="controller-tab-content">
+        <div class="gamepad-ui-frame">
+          <h3>🖱️ WIRELESS TRACKPAD & MOUSE</h3>
+          <div id="touchpadSurface" style="width:100%; height:320px; border:2px solid var(--dark-border); background:#111; margin:20px 0; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono);">
+            SLIDE TO MOVE CURSOR // 2-FINGER DRAG TO SCROLL
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="cyber-button md secondary" style="flex:1;" onmousedown="handleMouseClick('left', true)" onmouseup="handleMouseClick('left', false)">LEFT CLICK</button>
+            <button class="cyber-button md secondary" style="flex:1;" onmousedown="handleMouseClick('right', true)" onmouseup="handleMouseClick('right', false)">RIGHT CLICK</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: CUSTOM CONTROLLER BUILDER -->
+    <section id="builderSection" class="app-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>🛠️ WORKSTATION CONTROLLER BUILDER</h2>
+        <div>
+          <button class="cyber-button sm primary" onclick="saveCustomLayout()">💾 SAVE PROFILE</button>
+          <button class="cyber-button sm secondary" onclick="addCustomButton()">+ ADD BUTTON</button>
+          <button class="cyber-button sm secondary" onclick="addCustomStick()">+ ADD STICK</button>
+        </div>
+      </div>
+      <div class="builder-canvas" id="builderCanvas"></div>
+    </section>
+  </main>
+
+  <!-- SESSION PAIRING MODAL -->
+  <div class="modal-backdrop" id="sessionModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⚡ HYPERPULSE PAIRING HUB</h3>
+        <button class="close-btn" onclick="closeSessionModal()">✕</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab-btn active" id="tabModUsb" onclick="switchModalTab('usb')">⚡ USB TYPE-C CABLE</button>
+        <button class="modal-tab-btn" id="tabModWifi" onclick="switchModalTab('wifi')">📶 WI-FI QR SCAN</button>
+      </div>
+
+      <div id="modalUsbContent" class="modal-tab-content active">
+        <h4>ULTRA-LOW LATENCY (&lt;0.5MS) WIRED PAIRING</h4>
+        <p style="margin:10px 0;">Connect phone via USB Type-C data cable and click pair below.</p>
+        <button class="cyber-button lg primary" onclick="connectUsbDeviceHost()">⚡ PAIR C-TO-C CABLE NOW</button>
+      </div>
+
+      <div id="modalWifiContent" class="modal-tab-content">
+        <div id="modalQrDisplay" style="background:#fff; padding:10px; width:fit-content; margin:0 auto 10px auto;"></div>
+        <div style="text-align:center; font-family:var(--font-mono); font-size:1.5rem;" id="modalRoomCode">HYPER-8921</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ON-SCREEN MOBILE PHONE SIMULATOR DRAWER -->
+  <div class="mobile-simulator-drawer" id="mobileSimulatorDrawer">
+    <div class="sim-header">
+      <span>📱 SMARTPHONE SIMULATOR</span>
+      <button class="close-btn" onclick="toggleMobileSimulator()" style="color:#fff;">✕</button>
+    </div>
+    <div class="sim-phone-body">
+      <iframe id="simIframe" src="about:blank"></iframe>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

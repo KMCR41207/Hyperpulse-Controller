@@ -1,0 +1,1022 @@
+/* ==========================================================================
+   HYPERPULSE // EDITORIAL & INDUSTRIAL MOTORSPORT SYSTEM (styles.css)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800;900&display=swap');
+
+:root {
+  /* Editorial & Industrial Color Palette (Zero Neon) */
+  --bg-paper: #f2ede4;
+  --bg-paper-dark: #e6e0d4;
+  --bg-dark: #0d0d0d;
+  --bg-charcoal: #161616;
+  --bg-panel: #1f1f1f;
+  
+  --ink-black: #0a0a0a;
+  --text-main-dark: #f0ede6;
+  --text-muted-dark: #8c8983;
+  --text-main-light: #0a0a0a;
+  --text-muted-light: #66635c;
+  
+  --accent-red: #cc1111;
+  --accent-orange: #ff5500;
+  --accent-yellow: #e6b800;
+  --industrial-gray: #333333;
+  --silver-border: #d2ccbf;
+  --dark-border: #2a2a2a;
+  
+  --font-display: 'Bebas Neue', cursive, sans-serif;
+  --font-title: 'Syne', sans-serif;
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Reset & Base Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-paper);
+  color: var(--ink-black);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  overflow-x: hidden;
+  line-height: 1.4;
+}
+
+/* Paper Texture Grain Background */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-image: radial-gradient(var(--ink-black) 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Technical Editorial Header */
+.cyber-header {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  height: 64px;
+  background: var(--bg-paper);
+  border-bottom: 2px solid var(--ink-black);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.header-container {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--ink-black);
+  color: var(--bg-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.brand-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted-light);
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+}
+
+.nav-btn.highlight-btn {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.header-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-toggle {
+  background: transparent;
+  border: 1px solid var(--ink-black);
+  color: var(--ink-black);
+  width: 36px; height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.icon-toggle:hover {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+}
+
+/* Industrial Tactile Buttons */
+.cyber-button {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid var(--ink-black);
+  background: var(--bg-paper);
+  color: var(--ink-black);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  box-shadow: 4px 4px 0px var(--ink-black);
+  position: relative;
+}
+
+.cyber-button.sm { padding: 6px 12px; font-size: 0.7rem; box-shadow: 2px 2px 0px var(--ink-black); }
+.cyber-button.md { padding: 10px 18px; font-size: 0.8rem; }
+.cyber-button.lg { padding: 16px 28px; font-size: 0.95rem; }
+
+.cyber-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--ink-black);
+}
+
+.cyber-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--ink-black);
+}
+
+.cyber-button.primary {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+  border-color: var(--ink-black);
+}
+
+.cyber-button.secondary {
+  background: var(--bg-paper-dark);
+}
+
+.cyber-button.danger {
+  background: var(--accent-red);
+  color: #fff;
+  border-color: var(--ink-black);
+}
+
+/* Sections Setup */
+.app-section {
+  display: none;
+  min-height: calc(100vh - 64px);
+  margin-top: 64px;
+  padding: 40px 24px;
+}
+
+.app-section.active {
+  display: block;
+}
+
+/* Editorial Hero Section */
+.hero-wrapper {
+  max-width: 1500px;
+  margin: 0 auto 60px auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 60px;
+  align-items: start;
+  position: relative;
+}
+
+.hero-meta-bar {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  gap: 20px;
+  border-bottom: 2px solid var(--ink-black);
+  padding-bottom: 12px;
+  margin-bottom: 30px;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 6rem;
+  line-height: 0.85;
+  text-transform: uppercase;
+  margin-bottom: 30px;
+  letter-spacing: -1px;
+}
+
+.hero-subtitle {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  color: var(--text-muted-light);
+  max-width: 600px;
+  line-height: 1.5;
+  margin-bottom: 40px;
+  border-left: 3px solid var(--accent-red);
+  padding-left: 16px;
+}
+
+/* Industrial Transport Selector Card */
+.transport-selector-card {
+  border: 2px solid var(--ink-black);
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 6px 6px 0px var(--ink-black);
+}
+
+.transport-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+  letter-spacing: 1px;
+}
+
+.transport-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.transport-option {
+  border: 1px solid var(--ink-black);
+  padding: 12px;
+  cursor: pointer;
+  background: var(--bg-paper);
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.transport-option:hover, .transport-option.active {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+}
+
+.transport-icon { font-size: 1.4rem; margin-bottom: 6px; }
+
+.transport-info .name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.transport-info .desc {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+.badge-tag {
+  position: absolute;
+  top: 6px; right: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  background: var(--accent-red);
+  color: #fff;
+  font-weight: 700;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.hero-metrics {
+  display: flex;
+  border: 2px solid var(--ink-black);
+  background: #fff;
+  padding: 16px;
+  justify-content: space-around;
+  box-shadow: 4px 4px 0px var(--ink-black);
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-item .label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted-light);
+}
+
+.metric-item .value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Hero Technical Diagram Phone Visual */
+.hero-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.phone-frame-3d {
+  width: 320px; height: 580px;
+  background: var(--bg-dark);
+  border: 4px solid var(--ink-black);
+  padding: 12px;
+  box-shadow: 12px 12px 0px var(--ink-black);
+  position: relative;
+}
+
+.phone-screen-content {
+  width: 100%; height: 100%;
+  background: #111;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hud-readout {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  font-family: var(--font-mono);
+  color: #fff;
+}
+
+.hud-readout .speed-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent-red);
+}
+
+.hud-readout .gear-val {
+  font-size: 0.9rem;
+  color: var(--accent-yellow);
+}
+
+/* Editorial Section Containers */
+.section-container {
+  max-width: 1500px;
+  margin: 0 auto 80px auto;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  line-height: 0.9;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.section-sub {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+  margin-bottom: 40px;
+}
+
+/* Technical Steps Grid */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.step-card {
+  border: 2px solid var(--ink-black);
+  background: #fff;
+  padding: 24px;
+  box-shadow: 4px 4px 0px var(--ink-black);
+}
+
+.step-num {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--accent-red);
+}
+
+.step-card h3 {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.step-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted-light);
+  line-height: 1.4;
+}
+
+/* Modes Showcase Grid */
+.modes-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.mode-card {
+  border: 2px solid var(--ink-black);
+  background: #fff;
+  padding: 30px;
+  cursor: pointer;
+  box-shadow: 6px 6px 0px var(--ink-black);
+  transition: all 0.15s ease;
+}
+
+.mode-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 10px 10px 0px var(--ink-black);
+}
+
+.mode-card.wide-card {
+  grid-column: span 2;
+}
+
+.mode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.mode-icon { font-size: 2rem; }
+
+.mode-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  padding: 4px 8px;
+  background: var(--ink-black);
+  color: var(--bg-paper);
+  font-weight: 700;
+}
+
+.mode-card h3 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.mode-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted-light);
+  margin-bottom: 20px;
+}
+
+/* Host Dashboard Dark Theme */
+#hostDashboardSection {
+  background: var(--bg-dark);
+  color: var(--text-main-dark);
+  border: 2px solid var(--dark-border);
+  padding: 30px;
+}
+
+.dashboard-header {
+  border-bottom: 2px solid var(--dark-border);
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-code-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: #fff;
+}
+
+.dash-metrics {
+  display: flex;
+  gap: 12px;
+}
+
+.metric-pill {
+  background: var(--bg-panel);
+  border: 1px solid var(--dark-border);
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted-dark);
+  display: flex;
+  gap: 6px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 30px;
+}
+
+.dash-card {
+  background: var(--bg-charcoal);
+  border: 2px solid var(--dark-border);
+  padding: 20px;
+}
+
+.dash-card h3 {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  color: var(--text-muted-dark);
+  border-bottom: 1px solid var(--dark-border);
+  padding-bottom: 8px;
+}
+
+.qr-box {
+  background: #fff;
+  padding: 12px;
+  width: fit-content;
+  margin: 0 auto 16px auto;
+}
+
+.big-code {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent-yellow);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* Telemetry Grid (Dark Industrial Motorsport) */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.tele-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--dark-border);
+  padding: 16px;
+}
+
+.box-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted-dark);
+  margin-bottom: 12px;
+}
+
+.buttons-state-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.btn-chip {
+  background: #111;
+  border: 1px solid #333;
+  padding: 6px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.btn-chip.active {
+  background: var(--accent-red);
+  color: #fff;
+  border-color: var(--accent-red);
+}
+
+/* Controller Modes Dark Surface */
+#modesSection {
+  background: var(--bg-dark);
+  color: var(--text-main-dark);
+  padding: 30px;
+}
+
+.mode-navigation-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--dark-border);
+  padding-bottom: 12px;
+}
+
+.mode-nav-btn {
+  background: transparent;
+  border: 1px solid var(--dark-border);
+  color: var(--text-muted-dark);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.mode-nav-btn.active, .mode-nav-btn:hover {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.controller-tab-content {
+  display: none;
+}
+
+.controller-tab-content.active {
+  display: block;
+}
+
+/* Gamepad Hardware Surface */
+.gamepad-ui-frame {
+  background: var(--bg-charcoal);
+  border: 2px solid var(--dark-border);
+  padding: 30px;
+}
+
+.gamepad-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--dark-border);
+  padding-bottom: 16px;
+}
+
+.gamepad-main-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+}
+
+.gamepad-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.bumpers-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.bumper-btn {
+  flex: 1;
+  height: 48px;
+  background: #222;
+  border: 2px solid #444;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bumper-btn:active, .bumper-btn.active {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.dpad-container {
+  width: 160px; height: 160px;
+  position: relative;
+}
+
+.dpad-btn {
+  position: absolute;
+  background: #222;
+  border: 2px solid #444;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dpad-btn.up { top: 0; left: 52px; width: 56px; height: 56px; }
+.dpad-btn.down { bottom: 0; left: 52px; width: 56px; height: 56px; }
+.dpad-btn.left { top: 52px; left: 0; width: 56px; height: 56px; }
+.dpad-btn.right { top: 52px; right: 0; width: 56px; height: 56px; }
+.dpad-center { position: absolute; top: 52px; left: 52px; width: 56px; height: 56px; background: #111; }
+
+.dpad-btn:active, .dpad-btn.active {
+  background: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.face-buttons-container {
+  width: 160px; height: 160px;
+  position: relative;
+}
+
+.face-btn {
+  position: absolute;
+  width: 50px; height: 50px;
+  background: #222;
+  border: 2px solid #555;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.face-btn.btn-y { top: 0; left: 55px; border-color: var(--accent-yellow); color: var(--accent-yellow); }
+.face-btn.btn-x { top: 55px; left: 0; border-color: #fff; color: #fff; }
+.face-btn.btn-b { top: 55px; right: 0; border-color: var(--accent-red); color: var(--accent-red); }
+.face-btn.btn-a { bottom: 0; left: 55px; border-color: #39ff14; color: #39ff14; }
+
+.face-btn:active, .face-btn.active {
+  background: #fff;
+  color: #000;
+}
+
+.touch-stick-base {
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: #111;
+  border: 2px solid #333;
+  position: relative;
+  touch-action: none;
+}
+
+.touch-stick-thumb {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: #333;
+  border: 2px solid var(--accent-red);
+  position: absolute;
+  top: 38px; left: 38px;
+}
+
+/* Motorsport Cockpit G29 */
+.cockpit-container {
+  background: var(--bg-charcoal);
+  border: 2px solid var(--dark-border);
+  padding: 30px;
+}
+
+.rpm-shift-bar {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  background: #000;
+  padding: 10px;
+  border: 1px solid var(--dark-border);
+  margin-bottom: 30px;
+}
+
+.led {
+  width: 28px; height: 12px;
+  background: #222;
+  opacity: 0.3;
+}
+
+.led.green { background: #39ff14; }
+.led.yellow { background: var(--accent-yellow); }
+.led.red { background: var(--accent-red); }
+.led.active { opacity: 1; }
+
+.cockpit-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 240px;
+  gap: 30px;
+  align-items: center;
+}
+
+.speedo-box {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent-red);
+  line-height: 1;
+}
+
+.paddle-shifter {
+  width: 44px; height: 140px;
+  background: #222;
+  border: 2px solid #444;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.paddle-shifter:active {
+  background: var(--accent-red);
+}
+
+.pedal-slider {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  width: 24px;
+  height: 200px;
+  accent-color: var(--accent-red);
+}
+
+/* CAD Workstation Builder */
+#builderSection {
+  background: var(--bg-dark);
+  color: var(--text-main-dark);
+  padding: 30px;
+}
+
+.builder-canvas {
+  width: 100%; height: 580px;
+  border: 2px dashed var(--dark-border);
+  background: #111;
+  position: relative;
+}
+
+/* Modal Styling */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop.active { display: flex; }
+
+.modal-card {
+  width: 520px;
+  background: var(--bg-paper);
+  color: var(--ink-black);
+  border: 3px solid var(--ink-black);
+  padding: 24px;
+  box-shadow: 10px 10px 0px var(--ink-black);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--ink-black);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--ink-black);
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.modal-tab-btn {
+  flex: 1;
+  background: var(--bg-paper-dark);
+  border: 1px solid var(--ink-black);
+  color: var(--ink-black);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.modal-tab-btn.active {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+}
+
+.modal-tab-content { display: none; }
+.modal-tab-content.active { display: block; }
+
+/* Phone Simulator Drawer */
+.mobile-simulator-drawer {
+  position: fixed;
+  right: -420px; top: 64px;
+  width: 400px;
+  height: calc(100vh - 64px);
+  background: #000;
+  border-left: 3px solid var(--accent-red);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.9);
+  z-index: 1500;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-simulator-drawer.active { right: 0; }
+
+.sim-header {
+  padding: 12px 16px;
+  background: #111;
+  color: #fff;
+  border-bottom: 1px solid #222;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.sim-phone-body {
+  flex: 1; width: 100%; height: 100%;
+}
+
+.sim-phone-body iframe {
+  width: 100%; height: 100%; border: none;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background: var(--ink-black);
+  color: var(--bg-paper);
+  border: 1px solid var(--accent-red);
+  padding: 12px 20px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  box-shadow: 4px 4px 0px var(--accent-red);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .hero-wrapper { grid-template-columns: 1fr; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .steps-grid { grid-template-columns: repeat(2, 1fr); }
+  .modes-showcase-grid { grid-template-columns: 1fr; }
+  .mode-card.wide-card { grid-column: span 1; }
+  .cockpit-layout { grid-template-columns: 1fr; }
+  .gamepad-main-body { grid-template-columns: 1fr; }
+  .hero-title { font-size: 4rem; }
+}
