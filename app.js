@@ -1127,3 +1127,19 @@ navigate = function(pageId) {
   const mbn = document.getElementById('mobileBottomNav');
   if (mbn) mbn.style.display = pageId === 'dashboard' ? '' : 'none';
 };
+
+/* ---- GLOBAL KEYBOARD SHORTCUTS (dashboard only) ---- */
+document.addEventListener('keydown', e => {
+  if (HP.state.page !== 'dashboard') return;
+  if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+  const shortcuts = { 'G':'gamepad','R':'wheel','Y':'gyro','M':'mouse','K':'keyboard','C':'connect','F':'fullscreen' };
+  const action = shortcuts[e.key.toUpperCase()];
+  if (!action) return;
+  if (action === 'connect') { openConnectModal(); return; }
+  if (action === 'fullscreen') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(()=>{}); return; }
+  switchDashSection(action);
+  mbnActive(action);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') HP.ui.closeAllModals();
+});

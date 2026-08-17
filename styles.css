@@ -1003,3 +1003,10 @@ textarea.form-input { resize: vertical; }
 .gear-sequence { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
 .gear-pip { width:28px; height:28px; border-radius:5px; background:var(--bg); border:1px solid var(--border-lt); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.72rem; font-weight:700; color:var(--text-d); transition:all 0.15s; }
 .gear-pip.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 10px rgba(108,99,255,0.5); }
+
+/* KEYBOARD SHORTCUTS CARD */
+.keyboard-shortcuts-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+.ksc-title { font-size:0.75rem; font-weight:700; letter-spacing:2px; color:var(--text-d); font-family:var(--font-mono); margin-bottom:14px; }
+.ksc-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.ksc-row { display:flex; align-items:center; gap:12px; font-size:0.84rem; color:var(--text-m); }
+kbd { background:var(--bg-3); border:1px solid var(--border-lt); border-radius:5px; padding:4px 9px; font-family:var(--font-mono); font-size:0.75rem; color:var(--text); min-width:38px; text-align:center; box-shadow:0 2px 0 var(--border); }
