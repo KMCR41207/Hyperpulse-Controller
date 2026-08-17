@@ -914,3 +914,10 @@ textarea.form-input { resize: vertical; }
   .players-grid { grid-template-columns: repeat(2,1fr); }
   .room-code { font-size: 1.8rem; }
 }
+
+/* HERO STATS BAR */
+.hero-stats-bar { display:flex; align-items:center; gap:0; margin-top:32px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 24px; }
+.hero-stat { flex:1; text-align:center; }
+.hs-num { display:block; font-size:1.6rem; font-weight:900; font-family:var(--font-mono); color:var(--accent); line-height:1; }
+.hs-label { display:block; font-size:0.72rem; color:var(--text-d); margin-top:4px; font-weight:500; }
+.hs-divider { width:1px; height:36px; background:var(--border); flex-shrink:0; }

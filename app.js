@@ -991,3 +991,24 @@ document.querySelectorAll?.('.joystick-base, .trackpad-surface');
 document.addEventListener('contextmenu', e => {
   if (e.target.closest?.('.joystick-base') || e.target.closest?.('.trackpad-surface')) e.preventDefault();
 });
+
+/* ---- HERO STATS COUNTER ANIMATION ---- */
+function animateCounters() {
+  document.querySelectorAll('.hs-num[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const duration = 1800;
+    const step = target / (duration / 16);
+    let current = 0;
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current >= 1000 ? Math.round(current/1000)+'K+' : Math.round(current)+'';
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  });
+}
+// Trigger once hero is visible
+const heroObserver = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) { animateCounters(); heroObserver.disconnect(); }
+}, { threshold: 0.3 });
+const heroEl = document.getElementById('hero');
+if (heroEl) heroObserver.observe(heroEl);
