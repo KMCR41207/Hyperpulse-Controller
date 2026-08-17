@@ -694,6 +694,10 @@ function shiftGear(delta) {
   HP.state.inputs.wheel.gear = g;
   const labels = {'-1':'R', '0':'N'};
   document.getElementById('cockpitGear').textContent = labels[g] ?? g;
+  // Update gear sequence pips
+  document.querySelectorAll('.gear-pip').forEach(p => p.classList.remove('active'));
+  const pip = document.getElementById('gpip-' + g);
+  if (pip) pip.classList.add('active');
   if (navigator.vibrate) try { navigator.vibrate(40); } catch(e) {}
   HP.broadcast.send();
 }

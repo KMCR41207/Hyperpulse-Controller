@@ -998,3 +998,8 @@ textarea.form-input { resize: vertical; }
 .debug-title { display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; font-weight:700; letter-spacing:2px; color:var(--text-d); text-transform:uppercase; font-family:var(--font-mono); margin-bottom:12px; }
 .haptic-toggle-label { display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-m); letter-spacing:0; text-transform:none; cursor:pointer; font-weight:500; }
 .haptic-toggle-label input { accent-color:var(--accent); width:14px; height:14px; }
+
+/* GEAR SEQUENCE INDICATOR */
+.gear-sequence { display:flex; gap:5px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+.gear-pip { width:28px; height:28px; border-radius:5px; background:var(--bg); border:1px solid var(--border-lt); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:0.72rem; font-weight:700; color:var(--text-d); transition:all 0.15s; }
+.gear-pip.active { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 10px rgba(108,99,255,0.5); }
