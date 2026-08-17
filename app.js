@@ -1039,3 +1039,18 @@ function initNavHighlight() {
   sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
 }
 document.addEventListener('DOMContentLoaded', initNavHighlight);
+
+/* ---- TRIGGER PRESSURE ---- */
+function updateTriggerPressure(trigger, val) {
+  val = parseInt(val);
+  HP.state.inputs.triggers = HP.state.inputs.triggers || {};
+  HP.state.inputs.triggers[trigger] = val;
+  const key = trigger.toLowerCase();
+  const fill = document.getElementById(key+'Fill');
+  const lbl  = document.getElementById(key+'PctLabel');
+  if (fill) fill.style.width = val + '%';
+  if (lbl)  lbl.textContent  = val + '%';
+  document.getElementById('dbgTriggers').textContent =
+    (HP.state.inputs.triggers['L2']||0) + '% / ' + (HP.state.inputs.triggers['R2']||0) + '%';
+  HP.broadcast.send();
+}

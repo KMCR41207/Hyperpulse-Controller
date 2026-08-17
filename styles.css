@@ -949,3 +949,15 @@ textarea.form-input { resize: vertical; }
 
 /* NAV ACTIVE LINK */
 .nav-link.active { color:var(--text); background:var(--bg-3); }
+
+/* TRIGGER PRESSURE PANEL */
+.trigger-pressure-panel { background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; max-width:680px; margin:0 auto; width:100%; }
+.tpp-label { font-size:0.7rem; font-weight:700; letter-spacing:2px; color:var(--text-d); font-family:var(--font-mono); margin-bottom:12px; }
+.tpp-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:0.8rem; font-family:var(--font-mono); }
+.tpp-row span:first-child { width:24px; color:var(--text-m); }
+.tpp-row span:last-child { width:32px; text-align:right; color:var(--accent); }
+.tpp-track { flex:1; height:8px; background:var(--bg-3); border-radius:4px; overflow:hidden; }
+.tpp-fill { height:100%; border-radius:4px; transition:width 0.05s; }
+.tpp-left { background:linear-gradient(90deg,#6c63ff,#a09aff); }
+.tpp-right { background:linear-gradient(90deg,#00d4ff,#00ff88); }
+.tpp-slider { width:100px; accent-color:var(--accent); }

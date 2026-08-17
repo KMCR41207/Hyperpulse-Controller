@@ -653,6 +653,21 @@
               <div class="debug-row"><span>D-Pad</span><span id="dbgDpad">—</span></div>
             </div>
           </div>
+          <div class="trigger-pressure-panel">
+            <div class="tpp-label">TRIGGER PRESSURE</div>
+            <div class="tpp-row">
+              <span>L2</span>
+              <div class="tpp-track"><div class="tpp-fill tpp-left" id="l2Fill" style="width:0%"></div></div>
+              <input type="range" class="tpp-slider" min="0" max="100" value="0" id="l2Slider" oninput="updateTriggerPressure('L2',this.value)">
+              <span id="l2PctLabel">0%</span>
+            </div>
+            <div class="tpp-row">
+              <span>R2</span>
+              <div class="tpp-track"><div class="tpp-fill tpp-right" id="r2Fill" style="width:0%"></div></div>
+              <input type="range" class="tpp-slider" min="0" max="100" value="0" id="r2Slider" oninput="updateTriggerPressure('R2',this.value)">
+              <span id="r2PctLabel">0%</span>
+            </div>
+          </div>
         </div>
       </div>
 
