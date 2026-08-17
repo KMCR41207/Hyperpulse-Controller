@@ -1012,3 +1012,12 @@ const heroObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.3 });
 const heroEl = document.getElementById('hero');
 if (heroEl) heroObserver.observe(heroEl);
+
+/* ---- SCROLL REVEAL OBSERVER ---- */
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold: 0.12 });
+function initScrollReveal() {
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
+}
+document.addEventListener('DOMContentLoaded', initScrollReveal);
