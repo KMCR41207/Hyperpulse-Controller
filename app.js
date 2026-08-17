@@ -951,11 +951,17 @@ function switchConnectTab(tab) {
 function simulateConnect(transport) {
   const status = document.getElementById('modalDeviceStatus');
   if (status) status.textContent = `⏳ Searching for devices on ${transport}...`;
+  addConnLog(`Searching for devices on ${transport}...`);
   setTimeout(() => {
     HP.state.device = { connected: true, name: "Mani's Phone", battery: 74, latency: 8, transport, signal: 'Excellent' };
     if (status) status.textContent = '● Connected — Mani\'s Phone (8ms)';
     HP.ui.updateSidebarDevice();
-    addConnLog(`Device connected via ${transport}`);
+    addConnLog(`✓ Device connected: Mani's Phone`);
+    addConnLog(`Transport: ${transport} | Latency: 8ms | Battery: 74%`);
+    addConnLog(`Input rate: 120Hz | Signal: Excellent`);
+    // Update perf stats
+    const ps = document.getElementById('perfSignal');
+    if (ps) { ps.textContent = 'Excellent'; ps.className = 'psc-value cs-success'; }
     setTimeout(() => { HP.ui.closeModal('connectModal'); HP.ui.toast(`✓ Connected via ${transport}`, 'success'); }, 800);
   }, 1500);
 }
