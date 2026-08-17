@@ -1021,3 +1021,21 @@ function initScrollReveal() {
   document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
 }
 document.addEventListener('DOMContentLoaded', initScrollReveal);
+
+/* ---- ACTIVE NAV LINK ON SCROLL ---- */
+function initNavHighlight() {
+  const sections = ['modes','how-it-works','pairing','testimonials'];
+  const links = document.querySelectorAll('.nav-link');
+  const sectionMap = { 'modes':0, 'how-it-works':1, 'pairing':2, 'testimonials':3 };
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const idx = sectionMap[entry.target.id];
+        if (idx !== undefined && links[idx]) links[idx].classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+}
+document.addEventListener('DOMContentLoaded', initNavHighlight);

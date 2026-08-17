@@ -946,3 +946,6 @@ textarea.form-input { resize: vertical; }
 .tc-name { font-size:0.875rem; font-weight:700; }
 .tc-meta { font-size:0.75rem; color:var(--text-d); }
 @media (max-width:768px) { .testimonials-grid { grid-template-columns:1fr; } }
+
+/* NAV ACTIVE LINK */
+.nav-link.active { color:var(--text); background:var(--bg-3); }
