@@ -1,0 +1,15 @@
+{
+  "name": "hyperpulse-controller",
+  "version": "1.0.0",
+  "description": "Turn your smartphone into a gaming controller",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/",
+    "start": "live-server --port=3000 --open=/"
+  },
+  "keywords": ["gamepad", "controller", "gyroscope", "racing-wheel"],
+  "author": "Hyperpulse",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
