@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Turn your smartphone into a gaming controller",
   "scripts": {
-    "dev": "live-server --port=3000 --open=/",
-    "start": "live-server --port=3000 --open=/"
+    "dev": "live-server --port=3000 --open=/ --ignore=node_modules",
+    "start": "live-server --port=3000 --open=/ --ignore=node_modules"
   },
   "keywords": ["gamepad", "controller", "gyroscope", "racing-wheel"],
   "author": "Hyperpulse",
