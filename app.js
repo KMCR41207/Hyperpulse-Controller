@@ -164,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startTelemetryUpdateLoop();
 
   if (window.HPAuth)       HPAuth.init();
+  if (window.HPDashboard)  HPDashboard.init();
   if (window.HPProfiles)   HPProfiles.init();
   if (window.HPCommunity)  HPCommunity.init();
   if (window.HPSettingsUI) HPSettingsUI.init();
@@ -224,6 +225,7 @@ function showSection(sectionId) {
 
   const map = {
     landing:   'landingSection',
+    dashboard: 'dashboardSection',
     modes:     'modesSection',
     builder:   'builderSection',
     host:      'hostDashboardSection',
