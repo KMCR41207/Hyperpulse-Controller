@@ -236,6 +236,7 @@ const HP = (function () {
     /* ── User ───────────────────────────────────────────────── */
     getUser()  { return _user; },
     isLoggedIn() { return !!_user; },
+    getUserById(id) { return _user && _user.user_id === id ? _user : null; },
 
     registerUser(email, name, passwordHash) {
       _user = {
@@ -312,10 +313,30 @@ const HP = (function () {
       save('devices', _devices);
     },
 
+    updateDevice(deviceId, fields) {
+      const d = _devices.find(d => d.device_id === deviceId);
+      if (!d) return;
+      Object.assign(d, fields);
+      save('devices', _devices);
+    },
+
     disconnectDevice(deviceId) {
       const d = _devices.find(d => d.device_id === deviceId);
       if (!d) return;
       d.is_connected = false;
+      d.last_connected_at = now();
+      save('devices', _devices);
+    },
+
+    deleteDevice(deviceId) {
+      _devices = _devices.filter(d => d.device_id !== deviceId);
+      save('devices', _devices);
+    },
+
+    connectDevice(deviceId) {
+      const d = _devices.find(d => d.device_id === deviceId);
+      if (!d) return;
+      d.is_connected = true;
       d.last_connected_at = now();
       save('devices', _devices);
     },
@@ -361,14 +382,15 @@ const HP = (function () {
     /* ── GameProfile ────────────────────────────────────────── */
     getGameProfiles() { return [..._gameProfiles]; },
 
-    createGameProfile(gameName, controllerType, mappingJson) {
+    createGameProfile(gameName, controllerType, mappingJson, iconUrl) {
       const g = {
         game_profile_id: uuid(),
         user_id: _user ? _user.user_id : null,
         game_name: gameName,
-        game_icon_url: '',
+        game_icon_url: iconUrl || '',
         recommended_controller_type: controllerType,
         button_mapping_json: mappingJson || {},
+        assigned_controller_profile_id: null,
         created_at: now(), updated_at: now()
       };
       _gameProfiles.push(g);
@@ -378,6 +400,13 @@ const HP = (function () {
 
     deleteGameProfile(id) {
       _gameProfiles = _gameProfiles.filter(g => g.game_profile_id !== id);
+      save('game_profiles', _gameProfiles);
+    },
+
+    updateGameProfile(gameId, fields) {
+      const g = _gameProfiles.find(g => g.game_profile_id === gameId);
+      if (!g) return;
+      Object.assign(g, fields, { updated_at: now() });
       save('game_profiles', _gameProfiles);
     },
 
@@ -401,6 +430,25 @@ const HP = (function () {
           list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       }
       return list;
+    },
+
+    updateCommunityProfile(communityProfileId, fields) {
+      const cp = _communityProfiles.find(p => p.community_profile_id === communityProfileId);
+      if (!cp) return;
+      Object.assign(cp, fields, { updated_at: now() });
+      save('community_profiles', _communityProfiles);
+    },
+
+    deleteCommunityProfile(communityProfileId) {
+      _communityProfiles = _communityProfiles.filter(p => p.community_profile_id !== communityProfileId);
+      // Also remove associated reviews, downloads, favorites
+      _communityReviews   = _communityReviews.filter(r => r.community_profile_id !== communityProfileId);
+      _communityDownloads = _communityDownloads.filter(d => d.community_profile_id !== communityProfileId);
+      _communityFavorites = _communityFavorites.filter(f => f.community_profile_id !== communityProfileId);
+      save('community_profiles', _communityProfiles);
+      save('community_reviews',  _communityReviews);
+      save('community_downloads', _communityDownloads);
+      save('community_favorites', _communityFavorites);
     },
 
     publishCommunityProfile(controllerProfileId, gameName, description, tags) {

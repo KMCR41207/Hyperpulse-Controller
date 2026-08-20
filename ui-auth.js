@@ -87,8 +87,7 @@
 </div>
     `;
     document.body.appendChild(el.firstElementChild); // authModal
-    document.body.appendChild(el.children[0]);        // userDropdown
-    // re-grab since we used firstElementChild
+    // re-grab since we used firstElementChild — inject the proper dropdown
     document.body.insertAdjacentHTML('beforeend',
       `<div class="hp-user-dropdown" id="userDropdown" style="display:none;">
         <div class="hp-user-info">

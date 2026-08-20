@@ -116,7 +116,55 @@ localChannel.onmessage = (event) => {
 /* Debounce token for input logging — don't hit localStorage on every keypress */
 let _logDebounceId = null;
 
+/* Helper: push current state inputs to Testing Lab when it's visible */
+function _syncTestingLab(inputs) {
+  if (!isSectionActive('testingLab') || !window.HPTestingLab) return;
+  const lab = window.HPTestingLab;
+
+  // Buttons
+  if (inputs.buttons) {
+    const BUTTON_NAMES = ['A','B','X','Y','L1','R1','L2','R2','START','SELECT'];
+    BUTTON_NAMES.forEach(name => lab.updateButtonDisplay(name, !!inputs.buttons[name]));
+    // D-Pad
+    ['UP','DOWN','LEFT','RIGHT'].forEach(dir => {
+      lab.updateDpadDisplay(dir, !!inputs.buttons['DPAD_' + dir]);
+    });
+  }
+
+  // Analog sticks
+  if (inputs.sticks) {
+    lab.updateStickDisplay('left',  inputs.sticks.LX || 0, inputs.sticks.LY || 0);
+    lab.updateStickDisplay('right', inputs.sticks.RX || 0, inputs.sticks.RY || 0);
+  }
+
+  // Triggers
+  if (inputs.triggers) {
+    lab.updateTriggerDisplay('L2', (inputs.triggers.L2 || 0) * 100);
+    lab.updateTriggerDisplay('R2', (inputs.triggers.R2 || 0) * 100);
+  } else if (inputs.buttons) {
+    // Fallback: if L2/R2 are digital buttons treat as 0/100%
+    lab.updateTriggerDisplay('L2', inputs.buttons.L2 ? 100 : 0);
+    lab.updateTriggerDisplay('R2', inputs.buttons.R2 ? 100 : 0);
+  }
+
+  // Gyro
+  if (inputs.gyro) {
+    lab.updateGyroDisplay(
+      inputs.gyro.pitch || 0,
+      inputs.gyro.roll  || 0,
+      inputs.gyro.yaw   || 0
+    );
+  }
+
+  // Mouse
+  if (inputs.mouse) {
+    lab.updateMouseState && lab.updateMouseState(inputs.mouse);
+  }
+}
+
 function broadcastInputs() {
+  // Always sync testing lab with current state (zero-latency, in-memory)
+  _syncTestingLab(state.inputs);
   if (window.HPTransport) {
     HPTransport.send(state.inputs);
   } else {
@@ -168,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.HPProfiles)   HPProfiles.init();
   if (window.HPCommunity)  HPCommunity.init();
   if (window.HPSettingsUI) HPSettingsUI.init();
+  if (window.HPDevices)    HPDevices.init();
+  if (window.HPTestingLab) HPTestingLab.init();
+  if (window.HPPerformance) HPPerformance.init();
 
   if (window.HPTransport) {
     HPTransport.initLocal();
@@ -177,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (inputs.wheel)   state.inputs.wheel   = inputs.wheel;
       if (inputs.gyro)    state.inputs.gyro    = inputs.gyro;
       if (isSectionActive('host')) updateHostTelemetryUI();
+      _syncTestingLab(inputs);
     });
     // Latency simulator only runs when host dashboard is open
     HPTransport.startLatencySimulator((ms) => {
@@ -224,12 +276,15 @@ function showSection(sectionId) {
   state.activeSection = sectionId;
 
   const map = {
-    landing:   'landingSection',
-    dashboard: 'dashboardSection',
-    modes:     'modesSection',
-    builder:   'builderSection',
-    host:      'hostDashboardSection',
-    community: 'communitySection'
+    landing:          'landingSection',
+    dashboard:        'dashboardSection',
+    modes:            'modesSection',
+    builder:          'builderSection',
+    host:             'hostDashboardSection',
+    community:        'communitySection',
+    deviceManagement: 'deviceManagementSection',
+    testingLab:       'testingLabSection',
+    performance:      'performanceDashboardSection'
   };
   const el = map[sectionId] ? document.getElementById(map[sectionId]) : null;
   if (el) el.classList.add('active');
@@ -238,6 +293,18 @@ function showSection(sectionId) {
   if (window._heroModelCallbacks) {
     if (sectionId === 'landing') _heroModelCallbacks.resume();
     else                         _heroModelCallbacks.pause();
+  }
+
+  // Start/stop performance monitoring when its section is toggled
+  if (sectionId === 'performance') {
+    if (window.HPPerformance) HPPerformance.startMonitoring();
+  } else {
+    if (window.HPPerformance) HPPerformance.stopMonitoring();
+  }
+
+  // Re-render device list whenever devices section is opened
+  if (sectionId === 'deviceManagement') {
+    if (window.HPDevices) HPDevices.render();
   }
 }
 
@@ -356,27 +423,6 @@ function copySessionLink() {
 function openModeDirect(modeKey) {
   showSection('modes');
   switchControllerTab(modeKey);
-}
-
-function switchControllerTab(tabKey) {
-  playSound('click');
-  document.querySelectorAll('.mode-nav-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.controller-tab-content').forEach(c => c.classList.remove('active'));
-
-  state.activeControllerTab = tabKey;
-
-  const tabMap = {
-    gamepad: ['tabGamepadBtn', 'tabGamepad'],
-    wheel:   ['tabWheelBtn',   'tabWheel'],
-    gyro:    ['tabGyroBtn',    'tabGyro'],
-    mouse:   ['tabMouseBtn',   'tabMouse']
-  };
-  const [btnId, contentId] = tabMap[tabKey] || [];
-  if (btnId)     document.getElementById(btnId).classList.add('active');
-  if (contentId) document.getElementById(contentId).classList.add('active');
-
-  // Wheel canvas loop is self-gating via isControllerTabActive('wheel')
-  // Horizon canvas loop is self-gating via isControllerTabActive('gyro')
 }
 
 /* ==========================================================================
@@ -624,7 +670,27 @@ function initSensors() {
         document.getElementById('gyroYawVal').innerText   = state.inputs.gyro.yaw   + '°';
         wakeHorizonLoop();
       }
+      // Sync gyro to testing lab
+      if (isSectionActive('testingLab') && window.HPTestingLab) {
+        HPTestingLab.updateGyroDisplay(
+          state.inputs.gyro.pitch, state.inputs.gyro.roll, state.inputs.gyro.yaw
+        );
+      }
       broadcastInputs();
+    }, { passive: true });
+  }
+
+  if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', (e) => {
+      const a = e.accelerationIncludingGravity || e.acceleration;
+      if (!a) return;
+      if (isSectionActive('testingLab') && window.HPTestingLab && HPTestingLab.updateAccelDisplay) {
+        HPTestingLab.updateAccelDisplay(
+          parseFloat((a.x || 0).toFixed(2)),
+          parseFloat((a.y || 0).toFixed(2)),
+          parseFloat((a.z || 0).toFixed(2))
+        );
+      }
     }, { passive: true });
   }
 }
@@ -688,9 +754,8 @@ function updateHostTelemetryUI() {
 }
 
 /* ==========================================================================
-   CONTROLLER TAB ACTIVATION — wake dormant loops
+   CONTROLLER TAB ACTIVATION — wake dormant canvas loops
    ========================================================================== */
-const _origSwitchTab = window.switchControllerTab; // won't exist yet, that's fine
 function switchControllerTab(tabKey) {
   playSound('click');
   document.querySelectorAll('.mode-nav-btn').forEach(btn => btn.classList.remove('active'));
