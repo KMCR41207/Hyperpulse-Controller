@@ -44,6 +44,8 @@ const HP = (function () {
     gyro_sensitivity: 5,
     haptic_enabled: true,
     auto_reconnect: true,
+    auto_profile_switch: false,
+    low_latency_mode: false,
     updated_at: now()
   };
   let _settings = load('settings', _defaultSettings);

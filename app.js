@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.HPTestingLab) HPTestingLab.init();
   if (window.HPPerformance) HPPerformance.init();
   if (window.HPMultiplayer) HPMultiplayer.init();
+  if (window.HPAdvanced)   HPAdvanced.init();
 
   // Apply persisted settings (theme + accent) immediately after all modules init
   if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
@@ -304,7 +305,8 @@ function showSection(sectionId) {
     deviceManagement: 'deviceManagementSection',
     testingLab:       'testingLabSection',
     performance:      'performanceDashboardSection',
-    multiplayer:      'multiplayerSection'
+    multiplayer:      'multiplayerSection',
+    advanced:         'advancedSection'
   };
   const el = map[sectionId] ? document.getElementById(map[sectionId]) : null;
   if (el) el.classList.add('active');
