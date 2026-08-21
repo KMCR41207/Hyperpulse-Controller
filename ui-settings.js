@@ -7,47 +7,52 @@
 (function () {
 
   /* ── CSS variable maps for each theme ──────────────────────────────────── */
+  // The original design is industrial dark (black app sections, cream editorial header).
+  // "dark"  = restore original design variables — DO NOT touch bg-paper (cream header)
+  // "light" = invert app section backgrounds to light tones
+  // "amoled" = true black backgrounds for OLED screens
   const THEMES = {
     dark: {
-      '--bg-paper':           '#0d0d0d',
-      '--bg-paper-dark':      '#0a0a0a',
       '--bg-dark':            '#0d0d0d',
       '--bg-charcoal':        '#161616',
       '--bg-panel':           '#1f1f1f',
-      '--ink-black':          '#f0ede6',
+      '--dark-border':        '#2a2a2a',
       '--text-main-dark':     '#f0ede6',
       '--text-muted-dark':    '#8c8983',
-      '--text-main-light':    '#f0ede6',
-      '--text-muted-light':   '#8c8983',
-      '--dark-border':        '#2a2a2a',
-      '--silver-border':      '#2a2a2a',
-    },
-    light: {
+      // Restore editorial paper colours (header, landing)
       '--bg-paper':           '#f2ede4',
       '--bg-paper-dark':      '#e6e0d4',
-      '--bg-dark':            '#e0dbd2',
-      '--bg-charcoal':        '#d4cec6',
-      '--bg-panel':           '#cac4bc',
       '--ink-black':          '#0a0a0a',
-      '--text-main-dark':     '#0a0a0a',
-      '--text-muted-dark':    '#66635c',
       '--text-main-light':    '#0a0a0a',
       '--text-muted-light':   '#66635c',
-      '--dark-border':        '#b8b2aa',
-      '--silver-border':      '#b8b2aa',
+      '--silver-border':      '#d2ccbf',
+    },
+    light: {
+      '--bg-dark':            '#e8e2d9',
+      '--bg-charcoal':        '#d4cec6',
+      '--bg-panel':           '#c8c2ba',
+      '--dark-border':        '#b0aaa2',
+      '--text-main-dark':     '#0a0a0a',
+      '--text-muted-dark':    '#555248',
+      '--bg-paper':           '#f2ede4',
+      '--bg-paper-dark':      '#e6e0d4',
+      '--ink-black':          '#0a0a0a',
+      '--text-main-light':    '#0a0a0a',
+      '--text-muted-light':   '#555248',
+      '--silver-border':      '#b0aaa2',
     },
     amoled: {
-      '--bg-paper':           '#000000',
-      '--bg-paper-dark':      '#000000',
       '--bg-dark':            '#000000',
-      '--bg-charcoal':        '#0a0a0a',
-      '--bg-panel':           '#111111',
-      '--ink-black':          '#ffffff',
+      '--bg-charcoal':        '#000000',
+      '--bg-panel':           '#0a0a0a',
+      '--dark-border':        '#1a1a1a',
       '--text-main-dark':     '#ffffff',
       '--text-muted-dark':    '#888888',
+      '--bg-paper':           '#f2ede4',
+      '--bg-paper-dark':      '#e6e0d4',
+      '--ink-black':          '#0a0a0a',
       '--text-main-light':    '#ffffff',
       '--text-muted-light':   '#888888',
-      '--dark-border':        '#1a1a1a',
       '--silver-border':      '#1a1a1a',
     }
   };
@@ -68,6 +73,7 @@
   /* ── Apply settings on page load ───────────────────────────────────────── */
   function applyPersistedSettings() {
     const s = HP.getSettings();
+    // Only apply theme vars; accent is safe to always apply
     applyTheme(s.theme || 'dark');
     applyAccent(s.accent_color || '#cc1111');
   }
