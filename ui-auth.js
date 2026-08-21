@@ -194,6 +194,9 @@
 
       this.close();
       updateHeaderUserBtn();
+      // Re-apply this user's persisted settings (theme, accent, etc.)
+      if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
+      if (window.HPDashboard) HPDashboard.render();
       if (typeof showToast === 'function') showToast('✓ Signed in as ' + user.name);
     },
 
@@ -210,6 +213,8 @@
       HP.registerUser(email, name, weakHash(pass));
       this.close();
       updateHeaderUserBtn();
+      if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
+      if (window.HPDashboard) HPDashboard.render();
       if (typeof showToast === 'function') showToast('✓ Account created. Welcome, ' + name);
     },
 
@@ -217,6 +222,8 @@
       HP.logoutUser();
       this.closeDropdown();
       updateHeaderUserBtn();
+      if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
+      if (window.HPDashboard) HPDashboard.render();
       if (typeof showToast === 'function') showToast('Signed out.');
     },
 

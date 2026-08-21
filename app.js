@@ -219,6 +219,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.HPDevices)    HPDevices.init();
   if (window.HPTestingLab) HPTestingLab.init();
   if (window.HPPerformance) HPPerformance.init();
+  if (window.HPMultiplayer) HPMultiplayer.init();
+
+  // Apply persisted settings (theme + accent) immediately after all modules init
+  if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
 
   if (window.HPTransport) {
     HPTransport.initLocal();
@@ -243,6 +247,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('scrollTopBtn');
     if (btn) btn.classList.toggle('visible', window.scrollY > 400);
   }, { passive: true });
+
+  // Global ESC key — close any open panel, modal, or drawer
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    // Close modals (add 'active' class pattern)
+    document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
+    // Close side panels
+    document.querySelectorAll('.hp-side-panel.active').forEach(p => p.classList.remove('active'));
+    // Close mobile simulator
+    const sim = document.getElementById('mobileSimulatorDrawer');
+    if (sim && sim.classList.contains('active')) sim.classList.remove('active');
+    // Close auth dropdown
+    const dd = document.getElementById('userDropdown');
+    if (dd) dd.style.display = 'none';
+  });
 });
 
 function initUI() {
@@ -284,10 +303,19 @@ function showSection(sectionId) {
     community:        'communitySection',
     deviceManagement: 'deviceManagementSection',
     testingLab:       'testingLabSection',
-    performance:      'performanceDashboardSection'
+    performance:      'performanceDashboardSection',
+    multiplayer:      'multiplayerSection'
   };
   const el = map[sectionId] ? document.getElementById(map[sectionId]) : null;
   if (el) el.classList.add('active');
+
+  // Highlight matching nav button by onclick content
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const oc = btn.getAttribute('onclick') || '';
+    if (oc.includes("'" + sectionId + "'") || oc.includes('"' + sectionId + '"')) {
+      btn.classList.add('active');
+    }
+  });
 
   // Resume / pause Three.js model based on whether landing is showing
   if (window._heroModelCallbacks) {
@@ -305,6 +333,11 @@ function showSection(sectionId) {
   // Re-render device list whenever devices section is opened
   if (sectionId === 'deviceManagement') {
     if (window.HPDevices) HPDevices.render();
+  }
+
+  // Refresh dashboard on open
+  if (sectionId === 'dashboard') {
+    if (window.HPDashboard) HPDashboard.render();
   }
 }
 
