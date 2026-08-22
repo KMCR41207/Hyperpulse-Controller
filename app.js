@@ -220,7 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.HPTestingLab) HPTestingLab.init();
   if (window.HPPerformance) HPPerformance.init();
   if (window.HPMultiplayer) HPMultiplayer.init();
-  if (window.HPAdvanced)   HPAdvanced.init();
+  if (window.HPAdvanced)     HPAdvanced.init();
+  if (window.HPSecondScreen) HPSecondScreen.init();
+  if (window.HPCalibration)  HPCalibration.init();
+  if (window.HPDiagnostics)  HPDiagnostics.init();
+  if (window.HPBatteryAware) HPBatteryAware.init();
 
   // Apply persisted settings (theme + accent) immediately after all modules init
   if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
@@ -306,7 +310,10 @@ function showSection(sectionId) {
     testingLab:       'testingLabSection',
     performance:      'performanceDashboardSection',
     multiplayer:      'multiplayerSection',
-    advanced:         'advancedSection'
+    advanced:         'advancedSection',
+    secondScreen:     'secondScreenSection',
+    calibration:      'calibrationSection',
+    diagnostics:      'diagnosticsSection'
   };
   const el = map[sectionId] ? document.getElementById(map[sectionId]) : null;
   if (el) el.classList.add('active');
