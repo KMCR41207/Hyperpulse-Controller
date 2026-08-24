@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Global ESC key — close any open panel, modal, or drawer
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    // Close modals (add 'active' class pattern)
+    // Close modals
     document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
     // Close side panels
     document.querySelectorAll('.hp-side-panel.active').forEach(p => p.classList.remove('active'));
@@ -266,6 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Close auth dropdown
     const dd = document.getElementById('userDropdown');
     if (dd) dd.style.display = 'none';
+  });
+
+  // Landing page keyboard shortcuts (only when no input is focused)
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+    if (e.key === 'h' || e.key === 'H') { if (isSectionActive('landing')) startHostSession(); }
+    if (e.key === 'j' || e.key === 'J') { if (isSectionActive('landing')) openJoinModal(); }
   });
 });
 
