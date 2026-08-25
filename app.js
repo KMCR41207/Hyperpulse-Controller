@@ -229,6 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply persisted settings (theme + accent) immediately after all modules init
   if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
 
+  // Hide page loader
+  const loader = document.getElementById('pageLoader');
+  if (loader) {
+    loader.classList.add('hidden');
+    setTimeout(() => { loader.style.display = 'none'; }, 450);
+  }
+
   if (window.HPTransport) {
     HPTransport.initLocal();
     HPTransport.on('input', (inputs) => {
