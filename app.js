@@ -280,6 +280,10 @@ function initUI() {
   document.getElementById('dashSessionCode').innerText = state.sessionId;
   document.getElementById('dashBigCode').innerText     = state.sessionId.replace('HYPER-', '');
   document.getElementById('modalRoomCode').innerText   = state.sessionId;
+  // Ensure USB is visually active on load without playing sound
+  document.querySelectorAll('.transport-option').forEach(el => el.classList.remove('active'));
+  const usbEl = document.getElementById('modeUsbOption');
+  if (usbEl) usbEl.classList.add('active');
   generateQRCode();
 }
 
