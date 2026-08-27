@@ -266,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Global ESC key — close any open panel, modal, or drawer
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (window.HPNav) HPNav.close();
     // Close modals
     document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
     // Close side panels
@@ -355,6 +356,7 @@ const HPNav = {
    ========================================================================== */
 function showSection(sectionId) {
   playSound('click');
+  if (window.HPNav) HPNav.close(); // close any open dropdown
   document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
