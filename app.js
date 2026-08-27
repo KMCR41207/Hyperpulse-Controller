@@ -229,6 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Apply persisted settings (theme + accent) immediately after all modules init
   if (window.HPSettingsUI) HPSettingsUI.applyUserSettings();
 
+  // Initialise nav dropdown controller
+  HPNav.init();
+
   // Hide page loader
   const loader = document.getElementById('pageLoader');
   if (loader) {
@@ -305,6 +308,46 @@ function generateQRCode() {
     if (modalQr)     new QRCode(modalQr,     { text: pairingUrl, width: 160, height: 160 });
   }
 }
+
+/* ==========================================================================
+   NAV DROPDOWN CONTROLLER
+   ========================================================================== */
+const HPNav = {
+  _open: null,
+
+  init() {
+    // Overlay div for outside-click close
+    const ov = document.createElement('div');
+    ov.id = 'navOverlay';
+    ov.className = 'nav-overlay';
+    ov.addEventListener('click', () => this.close());
+    document.body.appendChild(ov);
+  },
+
+  toggle(id) {
+    this._open === id ? this.close() : this.open(id);
+  },
+
+  open(id) {
+    // Close any already-open dropdown
+    if (this._open) this._closeId(this._open);
+    this._open = id;
+    document.getElementById('navDrop-' + id)?.closest('.nav-dropdown')?.classList.add('open');
+    const ov = document.getElementById('navOverlay');
+    if (ov) ov.classList.add('visible');
+  },
+
+  close() {
+    if (this._open) this._closeId(this._open);
+    this._open = null;
+    const ov = document.getElementById('navOverlay');
+    if (ov) ov.classList.remove('visible');
+  },
+
+  _closeId(id) {
+    document.getElementById('navDrop-' + id)?.closest('.nav-dropdown')?.classList.remove('open');
+  }
+};
 
 /* ==========================================================================
    NAVIGATION
