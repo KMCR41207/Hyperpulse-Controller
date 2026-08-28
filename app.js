@@ -333,7 +333,11 @@ const HPNav = {
     // Close any already-open dropdown
     if (this._open) this._closeId(this._open);
     this._open = id;
-    document.getElementById('navDrop-' + id)?.closest('.nav-dropdown')?.classList.add('open');
+    const dropdown = document.getElementById('navDrop-' + id)?.closest('.nav-dropdown');
+    if (dropdown) {
+      // Two rAF frames ensure initial CSS state is painted before .open triggers transition
+      requestAnimationFrame(() => requestAnimationFrame(() => dropdown.classList.add('open')));
+    }
     const ov = document.getElementById('navOverlay');
     if (ov) ov.classList.add('visible');
   },
