@@ -232,6 +232,39 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialise nav dropdown controller
   HPNav.init();
 
+  // Dock magnification
+  (function initDock() {
+    const dock = document.getElementById('hpDock');
+    if (!dock) return;
+    const MAX = 52, BASE = 36, SPREAD = 80;
+
+    function update(mouseX) {
+      dock.querySelectorAll('.hp-dock-item').forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const centre = rect.left + rect.width / 2;
+        const dist = Math.abs(mouseX - centre);
+        const scale = dist < SPREAD
+          ? BASE + (MAX - BASE) * (1 - dist / SPREAD)
+          : BASE;
+        item.style.width  = scale + 'px';
+        item.style.height = scale + 'px';
+        const icon = item.querySelector('.hp-dock-icon');
+        if (icon) icon.style.fontSize = (scale * 0.5) + 'px';
+      });
+    }
+
+    function reset() {
+      dock.querySelectorAll('.hp-dock-item').forEach(item => {
+        item.style.width = item.style.height = BASE + 'px';
+        const icon = item.querySelector('.hp-dock-icon');
+        if (icon) icon.style.fontSize = '';
+      });
+    }
+
+    dock.addEventListener('mousemove', e => update(e.clientX), { passive: true });
+    dock.addEventListener('mouseleave', reset, { passive: true });
+  })();
+
   // Hide page loader
   const loader = document.getElementById('pageLoader');
   if (loader) {
