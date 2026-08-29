@@ -232,6 +232,44 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialise nav dropdown controller
   HPNav.init();
 
+  // Meteor shower — landing page background, self-gates when not visible
+  (function initMeteors() {
+    const container = document.getElementById('meteorContainer');
+    if (!container) return;
+    const COUNT = 30;
+    const meteors = [];
+
+    function spawnMeteor(el) {
+      const angle = 10 + Math.random() * 20; // slight diagonal
+      const left  = Math.random() * 110 - 5; // -5% to 105% of width
+      const dur   = 1.5 + Math.random() * 2.5;
+      const delay = Math.random() * 4;
+      el.style.cssText = `
+        left:${left}%;
+        --angle:${angle}deg;
+        animation-duration:${dur}s;
+        animation-delay:${delay}s;
+        opacity:0;
+      `;
+    }
+
+    for (let i = 0; i < COUNT; i++) {
+      const m = document.createElement('div');
+      m.className = 'meteor';
+      spawnMeteor(m);
+      container.appendChild(m);
+      meteors.push(m);
+      // Re-randomise position each cycle
+      m.addEventListener('animationiteration', () => spawnMeteor(m));
+    }
+
+    // Pause when landing not visible to save CPU/GPU
+    document.addEventListener('visibilitychange', () => {
+      const paused = document.hidden || !isSectionActive('landing');
+      meteors.forEach(m => m.style.animationPlayState = paused ? 'paused' : 'running');
+    });
+  })();
+
   // Dock magnification — uses transform:scale (GPU composited, zero layout cost)
   (function initDock() {
     const dock = document.getElementById('hpDock');
@@ -443,6 +481,12 @@ function showSection(sectionId) {
   if (sectionId === 'dashboard') {
     if (window.HPDashboard) HPDashboard.render();
   }
+
+  // Pause meteors when not on landing
+  const meteors = document.querySelectorAll('.meteor');
+  meteors.forEach(m => {
+    m.style.animationPlayState = sectionId === 'landing' ? 'running' : 'paused';
+  });
 }
 
 /* ==========================================================================
